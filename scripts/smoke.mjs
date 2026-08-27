@@ -6,8 +6,8 @@ const checks = [
 		status: 200,
 		expectedTexts: [
 			'gaato lab',
-			'ホロドリ：イベントPt調整',
-			'ホロドリ：ハイ&amp;ロー手札判断'
+			'hololive Dreams: Event Pt calculator',
+			'hololive Dreams: High &amp; Low hand advisor'
 		],
 		unexpectedTexts: ['カバー株式会社']
 	},
@@ -15,34 +15,34 @@ const checks = [
 		path: '/holodori/',
 		status: 200,
 		expectedTexts: [
-			'ホロドリ：イベントPt調整',
-			'ホロドリ：ハイ&amp;ロー手札判断',
-			'カバー株式会社'
+			'hololive Dreams: Event Pt calculator',
+			'hololive Dreams: High &amp; Low hand advisor',
+			'COVER Corporation'
 		]
 	},
 	{
 		path: '/holodori/event-pt/?current=1144899&target=1145141&bonus=20&passport=1&lang=ja',
 		status: 200,
 		expectedTexts: [
-			'ホロドリ：イベントPt調整',
-			'ホッピンロープ',
-			'イベントPtブースト使用時は未対応',
-			'カバー株式会社'
+			'hololive Dreams: Event Pt calculator',
+			'Hoppin Rope',
+			'Event Pt Boost is not supported',
+			'COVER Corporation'
 		]
 	},
 	{
 		path: '/holodori/high-low/?lang=ja',
 		status: 200,
 		expectedTexts: [
-			'ホロドリ：ハイ&amp;ロー手札判断',
-			'カードオブグリード',
-			'カバー株式会社'
+			'hololive Dreams: High &amp; Low hand advisor',
+			'Card of Greed',
+			'COVER Corporation'
 		]
 	},
 	{
 		path: '/this-lab-route-does-not-exist/',
 		status: 404,
-		expectedTexts: ['ページが見つかりません']
+		expectedTexts: ['Page not found']
 	}
 ];
 
@@ -78,6 +78,14 @@ for (const check of checks) {
 	if (!hasDocument)
 		failures.push(`${url.pathname}: response is not a complete HTML document`);
 	if (!hasHeading) failures.push(`${url.pathname}: response has no h1`);
+	const documentLanguage = body.match(
+		/<html[^>]*\blang=["']([^"']+)["']/iu
+	)?.[1];
+	if (documentLanguage !== 'en') {
+		failures.push(
+			`${url.pathname}: expected static document language en, got ${documentLanguage ?? 'none'}`
+		);
+	}
 	for (const expectedText of check.expectedTexts) {
 		if (!body.includes(expectedText)) {
 			failures.push(

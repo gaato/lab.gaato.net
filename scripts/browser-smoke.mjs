@@ -347,7 +347,12 @@ try {
 	// unrelated scripts (for example, Cloudflare security instrumentation).
 	await page.setJavaScriptEnabled(false);
 	await open('/this-lab-route-does-not-exist/', 404);
-	assert.match(await mainText(), /ページが見つかりません/u);
+	assert.equal(
+		await page.$eval('html', (element) => element.lang),
+		'en',
+		'The static document did not use the English fallback language'
+	);
+	assert.match(await mainText(), /Page not found/u);
 	assert.deepEqual(
 		pageErrors,
 		[],

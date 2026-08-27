@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -18,9 +18,9 @@
 					const selected = candidates
 						.map((value) => value?.trim().toLowerCase().split('-')[0])
 						.find((value) => value && supported.has(value));
-					document.documentElement.lang = selected ?? 'ja';
+					document.documentElement.lang = selected ?? 'en';
 				} catch {
-					// The prerendered Japanese default remains usable without storage access.
+					// The prerendered English default remains usable without storage access.
 				}
 			})();
 		</script>

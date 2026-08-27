@@ -3,7 +3,7 @@ import { writable } from 'svelte/store';
 export const supportedLocales = ['ja', 'en'] as const;
 export type Locale = (typeof supportedLocales)[number];
 
-export const defaultLocale: Locale = 'ja';
+export const defaultLocale: Locale = 'en';
 export const localeStorageKey = 'lab.gaato.net.locale';
 
 const ja = {
