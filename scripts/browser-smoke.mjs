@@ -257,6 +257,32 @@ try {
 	assert.match(highLowResultText, /Expected total payout/u);
 	assert.match(highLowResultText, /Winning-hand rate/u);
 
+	await page.select('#site-language', 'ja');
+	await page.waitForFunction(
+		() =>
+			document.documentElement.lang === 'ja' &&
+			new URL(window.location.href).searchParams.get('lang') === 'ja'
+	);
+	await waitForMainText('4枚を残す');
+	assert.doesNotMatch(
+		await mainText(),
+		/Keep 4/u,
+		'The English strategy heading remained after switching to Japanese'
+	);
+
+	await page.select('#site-language', 'en');
+	await page.waitForFunction(
+		() =>
+			document.documentElement.lang === 'en' &&
+			new URL(window.location.href).searchParams.get('lang') === 'en'
+	);
+	await waitForMainText('Keep 4');
+	assert.doesNotMatch(
+		await mainText(),
+		/4枚を残す/u,
+		'The Japanese strategy heading remained after switching to English'
+	);
+
 	await page.click('button[aria-label^="Card 1 "]');
 	await clickButtonText('J');
 	await waitForMainText('That card is already in your hand');

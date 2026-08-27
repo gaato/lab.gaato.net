@@ -97,28 +97,32 @@
 		}
 	}
 
-	function cardText(card: Card): string {
+	function cardText(activeLocale: Locale, card: Card): string {
 		return card.kind === 'joker'
-			? translate($locale, 'highLow.joker')
+			? translate(activeLocale, 'highLow.joker')
 			: `${card.rank}${suitSymbols[card.suit]}`;
 	}
 
-	function cardAccessibleText(card: Card): string {
+	function cardAccessibleText(activeLocale: Locale, card: Card): string {
 		return card.kind === 'joker'
-			? translate($locale, 'highLow.joker')
-			: `${card.rank} ${translate($locale, suitMessageKey(card.suit))}`;
+			? translate(activeLocale, 'highLow.joker')
+			: `${card.rank} ${translate(activeLocale, suitMessageKey(card.suit))}`;
 	}
 
-	function cardSlotLabel(card: CardSlot, index: number): string {
-		const position = translate($locale, 'highLow.cardSlot', {
+	function cardSlotLabel(
+		activeLocale: Locale,
+		card: CardSlot,
+		index: number
+	): string {
+		const position = translate(activeLocale, 'highLow.cardSlot', {
 			index: index + 1
 		});
 		const value = card
-			? cardAccessibleText(card)
-			: translate($locale, 'highLow.emptyCard');
+			? cardAccessibleText(activeLocale, card)
+			: translate(activeLocale, 'highLow.emptyCard');
 		const active =
 			selectedIndex === index
-				? ` ${translate($locale, 'highLow.activeCard')}`
+				? ` ${translate(activeLocale, 'highLow.activeCard')}`
 				: '';
 		return `${position} ${value}${active}`;
 	}
@@ -306,10 +310,13 @@
 		invalidateAnalysis();
 	}
 
-	function strategyHeading(strategy: HoldStrategy): string {
+	function strategyHeading(
+		activeLocale: Locale,
+		strategy: HoldStrategy
+	): string {
 		return strategy.heldIndices.length === 0
-			? translate($locale, 'highLow.replaceAll')
-			: translate($locale, 'highLow.keepCount', {
+			? translate(activeLocale, 'highLow.replaceAll')
+			: translate(activeLocale, 'highLow.keepCount', {
 					count: strategy.heldIndices.length
 				});
 	}
@@ -318,12 +325,15 @@
 		return (strategy.holdMask & (1 << index)) !== 0;
 	}
 
-	function strategyCardList(strategy: HoldStrategy): string {
+	function strategyCardList(
+		activeLocale: Locale,
+		strategy: HoldStrategy
+	): string {
 		if (strategy.heldIndices.length === 0) {
-			return translate($locale, 'highLow.replaceAll');
+			return translate(activeLocale, 'highLow.replaceAll');
 		}
 		return strategy.heldIndices
-			.map((index) => cardText(cards[index]!))
+			.map((index) => cardText(activeLocale, cards[index]!))
 			.join(' ');
 	}
 
@@ -384,7 +394,7 @@
 							<button
 								class={`btn min-h-24 min-w-0 flex-col gap-1 px-1 ${selectedIndex === index ? 'btn-primary' : 'btn-outline'}`}
 								type="button"
-								aria-label={cardSlotLabel(card, index)}
+								aria-label={cardSlotLabel($locale, card, index)}
 								aria-pressed={selectedIndex === index}
 								onclick={() => setSelectedCard(index)}
 							>
@@ -394,7 +404,7 @@
 								<span
 									class={`text-lg leading-none font-bold sm:text-xl ${card?.kind === 'standard' && (card.suit === 'hearts' || card.suit === 'diamonds') ? 'text-error' : ''}`}
 								>
-									{card ? cardText(card) : ' '}
+									{card ? cardText($locale, card) : ' '}
 								</span>
 								<span class="text-[0.625rem] font-medium sm:text-xs">
 									{!card
@@ -547,7 +557,7 @@
 							<article class="card bg-base-100 shadow-sm">
 								<div class="card-body gap-4 p-5 sm:p-6">
 									<h3 class="card-title text-lg">
-										{strategyHeading(strategy)}
+										{strategyHeading($locale, strategy)}
 									</h3>
 
 									<div class="grid grid-cols-5 gap-2">
@@ -557,7 +567,7 @@
 											>
 												<strong
 													class={`text-lg leading-none ${card?.kind === 'standard' && (card.suit === 'hearts' || card.suit === 'diamonds') ? 'text-error' : ''}`}
-													>{card ? cardText(card) : ''}</strong
+													>{card ? cardText($locale, card) : ''}</strong
 												>
 												<span class="text-[0.6875rem] font-semibold sm:text-xs">
 													{strategyKeepsCard(strategy, index)
@@ -673,9 +683,11 @@
 						<div class="grid gap-3 sm:grid-cols-2">
 							{#each alternativeStrategies as strategy}
 								<article class="bg-base-200 rounded-box p-4">
-									<h4 class="font-semibold">{strategyHeading(strategy)}</h4>
+									<h4 class="font-semibold">
+										{strategyHeading($locale, strategy)}
+									</h4>
 									<p class="mt-1 font-mono text-sm">
-										{strategyCardList(strategy)}
+										{strategyCardList($locale, strategy)}
 									</p>
 									<p class="text-base-content/70 numeric mt-2 text-sm">
 										{translate($locale, 'highLow.difference', {
