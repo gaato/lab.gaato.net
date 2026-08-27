@@ -34,12 +34,19 @@ async function mainText() {
 }
 
 async function waitForMainText(fragment) {
-	await page.waitForFunction(
-		(expected) =>
-			document.querySelector('main')?.textContent?.includes(expected),
-		{},
-		fragment
-	);
+	try {
+		await page.waitForFunction(
+			(expected) =>
+				document.querySelector('main')?.textContent?.includes(expected),
+			{},
+			fragment
+		);
+	} catch (error) {
+		throw new Error(
+			`Timed out waiting for ${JSON.stringify(fragment)}. Main text: ${JSON.stringify(await mainText())}`,
+			{ cause: error }
+		);
+	}
 }
 
 async function setValue(selector, value) {
@@ -196,7 +203,7 @@ try {
 	// unrelated scripts (for example, Cloudflare security instrumentation).
 	await page.setJavaScriptEnabled(false);
 	await open('/this-lab-route-does-not-exist/', 404);
-	assert.match(await mainText(), /Page not found/u);
+	assert.match(await mainText(), /ページが見つかりません/u);
 	assert.deepEqual(
 		pageErrors,
 		[],

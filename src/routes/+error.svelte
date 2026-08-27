@@ -23,34 +23,25 @@
 	/>
 </svelte:head>
 
-<section
-	class="grid min-h-[70dvh] place-items-center px-6 py-16"
-	aria-labelledby="error-heading"
->
-	<div
-		class="card bg-base-100 border-base-300 w-full max-w-xl border shadow-sm"
-	>
-		<div class="card-body gap-5">
-			<p class="text-primary font-mono text-sm font-bold tracking-[0.18em]">
-				{page.status}
-			</p>
-			<h1 id="error-heading" class="card-title text-3xl sm:text-4xl">
+<section class="hero min-h-[70dvh]" aria-labelledby="error-heading">
+	<div class="hero-content px-6 py-16 text-center">
+		<div class="max-w-md">
+			<p class="text-base-content/60 text-sm font-semibold">{page.status}</p>
+			<h1 id="error-heading" class="mt-2 text-3xl font-bold">
 				{translate(
 					activeLocale,
 					isNotFound ? 'error.notFoundHeading' : 'error.genericHeading'
 				)}
 			</h1>
-			<p class="text-base-content/70 text-lg">
+			<p class="text-base-content/70 mt-4">
 				{translate(
 					activeLocale,
 					isNotFound ? 'error.notFoundBody' : 'error.genericBody'
 				)}
 			</p>
-			<div class="card-actions mt-3">
-				<a class="btn btn-primary min-h-12" href={`/?lang=${activeLocale}`}
-					>{translate(activeLocale, 'error.backHome')}</a
-				>
-			</div>
+			<a class="btn btn-primary mt-6" href={`/?lang=${activeLocale}`}
+				>{translate(activeLocale, 'error.backHome')}</a
+			>
 		</div>
 	</div>
 </section>

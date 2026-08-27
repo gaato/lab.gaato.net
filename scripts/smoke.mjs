@@ -5,12 +5,12 @@ const checks = [
 	{
 		path: '/event-point/?current=1144899&target=1145141&bonus=20&passport=1&lang=ja',
 		status: 200,
-		expectedText: 'イベントPtをぴったり合わせる'
+		expectedText: 'イベントPt調整'
 	},
 	{
 		path: '/this-lab-route-does-not-exist/',
 		status: 404,
-		expectedText: 'Page not found'
+		expectedText: 'ページが見つかりません'
 	}
 ];
 

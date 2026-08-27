@@ -429,488 +429,452 @@
 	<meta name="twitter:card" content="summary" />
 </svelte:head>
 
-<div
-	class="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16"
->
-	<header class="max-w-4xl">
-		<div class="mb-5 flex flex-wrap items-center gap-3">
-			<a
-				class="link link-hover text-base-content/70 inline-flex min-h-12 items-center font-semibold"
-				href="/?lang={$locale}"
-			>
-				{translate($locale, 'site.home')}
-			</a>
-			<span class="badge badge-primary badge-outline min-h-8 px-3 font-bold"
-				>{translate($locale, 'event.zeroBoost')}</span
-			>
-		</div>
-		<p class="text-primary mb-4 text-xs font-black tracking-[0.2em]">
-			{translate($locale, 'event.kicker')}
-		</p>
-		<h1
-			class="text-base-content text-4xl leading-[1.05] font-black tracking-[-0.055em] sm:text-5xl lg:text-6xl"
+<div class="mx-auto w-full max-w-5xl px-4 py-6 sm:py-8">
+	<div class="breadcrumbs mb-2 text-sm">
+		<ul>
+			<li><a href="/?lang={$locale}">{translate($locale, 'site.home')}</a></li>
+			<li>{translate($locale, 'event.heading')}</li>
+		</ul>
+	</div>
+
+	<header class="flex flex-wrap items-center gap-3">
+		<h1 class="text-2xl font-bold">{translate($locale, 'event.heading')}</h1>
+		<span class="badge badge-outline"
+			>{translate($locale, 'event.zeroBoost')}</span
 		>
-			{translate($locale, 'event.heading')}
-		</h1>
-		<p
-			class="text-base-content/72 mt-5 max-w-2xl text-base leading-relaxed sm:text-lg"
-		>
-			{translate($locale, 'event.lead')}
-		</p>
 	</header>
 
-	<div
-		class="mt-10 grid items-start gap-6 lg:grid-cols-[minmax(20rem,0.82fr)_minmax(0,1.18fr)] lg:gap-8"
-	>
+	<div class="mt-6 grid items-start gap-6 lg:grid-cols-2">
 		<form
 			bind:this={formElement}
-			class="border-base-300 bg-base-100 rounded-box border p-5 sm:p-7"
+			class="card bg-base-100 shadow-sm"
 			action="/event-point/"
 			method="GET"
 			novalidate
 			onsubmit={handleSubmit}
 		>
-			<input type="hidden" name="lang" value={$locale} />
+			<div class="card-body gap-0 p-5 sm:p-6">
+				<input type="hidden" name="lang" value={$locale} />
 
-			<fieldset class="fieldset gap-0 p-0">
-				<legend class="fieldset-legend mb-5 p-0 text-xl font-black"
-					>{translate($locale, 'event.formLegend')}</legend
-				>
-
-				{#if showErrorSummary}
-					<div class="alert alert-error mb-5" role="alert" tabindex="-1">
-						<span class="font-semibold"
-							>{translate($locale, 'event.formErrorSummary')}</span
-						>
-					</div>
-				{/if}
-
-				<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-					<div class="fieldset p-0">
-						<label class="label pb-1 font-bold" for="current"
-							>{translate($locale, 'event.currentLabel')}</label
-						>
-						<input
-							id="current"
-							class="input numeric w-full"
-							name="current"
-							type="text"
-							inputmode="numeric"
-							enterkeyhint="next"
-							autocomplete="off"
-							required
-							bind:value={current}
-							aria-invalid={errors.current ? 'true' : undefined}
-							aria-describedby={`current-hint${errors.current ? ' current-error' : ''}`}
-							onblur={() => validateAndSet('current')}
-							oninput={(event) => handleFieldInput('current', event)}
-						/>
-						<p
-							id="current-hint"
-							class="text-base-content/65 mt-2 text-sm leading-relaxed"
-						>
-							{translate($locale, 'event.currentHint')}
-						</p>
-						{#if errors.current}<p
-								id="current-error"
-								class="text-error mt-2 text-sm font-semibold"
-							>
-								{translate($locale, errors.current)}
-							</p>{/if}
-					</div>
-
-					<div class="fieldset p-0">
-						<label class="label pb-1 font-bold" for="target"
-							>{translate($locale, 'event.targetLabel')}</label
-						>
-						<input
-							id="target"
-							class="input numeric w-full"
-							name="target"
-							type="text"
-							inputmode="numeric"
-							enterkeyhint="next"
-							autocomplete="off"
-							required
-							bind:value={target}
-							aria-invalid={errors.target ? 'true' : undefined}
-							aria-describedby={`target-hint${errors.target ? ' target-error' : ''}`}
-							onblur={() => validateAndSet('target')}
-							oninput={(event) => handleFieldInput('target', event)}
-						/>
-						<p
-							id="target-hint"
-							class="text-base-content/65 mt-2 text-sm leading-relaxed"
-						>
-							{translate($locale, 'event.targetHint')}
-						</p>
-						{#if errors.target}<p
-								id="target-error"
-								class="text-error mt-2 text-sm font-semibold"
-							>
-								{translate($locale, errors.target)}
-							</p>{/if}
-					</div>
-				</div>
-
-				<div class="fieldset mt-5 p-0">
-					<label class="label pb-1 font-bold" for="bonus"
-						>{translate($locale, 'event.bonusLabel')}</label
+				<fieldset class="fieldset gap-0 p-0">
+					<legend class="fieldset-legend mb-4 p-0 text-lg font-bold"
+						>{translate($locale, 'event.formLegend')}</legend
 					>
+
+					{#if showErrorSummary}
+						<div class="alert alert-error mb-5" role="alert" tabindex="-1">
+							<span class="font-semibold"
+								>{translate($locale, 'event.formErrorSummary')}</span
+							>
+						</div>
+					{/if}
+
+					<div class="grid gap-4 sm:grid-cols-2">
+						<div class="fieldset p-0">
+							<label class="label font-semibold" for="current"
+								>{translate($locale, 'event.currentLabel')}</label
+							>
+							<input
+								id="current"
+								class="input numeric w-full"
+								name="current"
+								type="text"
+								inputmode="numeric"
+								enterkeyhint="next"
+								autocomplete="off"
+								required
+								bind:value={current}
+								aria-invalid={errors.current ? 'true' : undefined}
+								aria-describedby={errors.current ? 'current-error' : undefined}
+								onblur={() => validateAndSet('current')}
+								oninput={(event) => handleFieldInput('current', event)}
+							/>
+							{#if errors.current}<p
+									id="current-error"
+									class="text-error mt-1 text-sm"
+								>
+									{translate($locale, errors.current)}
+								</p>{/if}
+						</div>
+
+						<div class="fieldset p-0">
+							<label class="label font-semibold" for="target"
+								>{translate($locale, 'event.targetLabel')}</label
+							>
+							<input
+								id="target"
+								class="input numeric w-full"
+								name="target"
+								type="text"
+								inputmode="numeric"
+								enterkeyhint="next"
+								autocomplete="off"
+								required
+								bind:value={target}
+								aria-invalid={errors.target ? 'true' : undefined}
+								aria-describedby={errors.target ? 'target-error' : undefined}
+								onblur={() => validateAndSet('target')}
+								oninput={(event) => handleFieldInput('target', event)}
+							/>
+							{#if errors.target}<p
+									id="target-error"
+									class="text-error mt-1 text-sm"
+								>
+									{translate($locale, errors.target)}
+								</p>{/if}
+						</div>
+					</div>
+
+					<div class="fieldset mt-4 p-0">
+						<label class="label font-semibold" for="bonus"
+							>{translate($locale, 'event.bonusLabel')}</label
+						>
+						<label
+							class="input numeric flex w-full items-center gap-2"
+							for="bonus"
+						>
+							<input
+								id="bonus"
+								class="min-w-0 grow"
+								name="bonus"
+								type="text"
+								inputmode="decimal"
+								enterkeyhint="next"
+								autocomplete="off"
+								required
+								bind:value={bonus}
+								aria-invalid={errors.bonus ? 'true' : undefined}
+								aria-describedby={`bonus-hint${errors.bonus ? ' bonus-error' : ''}`}
+								onblur={() => validateAndSet('bonus')}
+								oninput={(event) => handleFieldInput('bonus', event)}
+							/>
+							<span class="text-base-content/60 font-bold"
+								>{translate($locale, 'event.bonusUnit')}</span
+							>
+						</label>
+						<p id="bonus-hint" class="text-base-content/60 mt-1 text-sm">
+							{translate($locale, 'event.bonusHint')}
+						</p>
+						{#if errors.bonus}<p
+								id="bonus-error"
+								class="text-error mt-1 text-sm"
+							>
+								{translate($locale, errors.bonus)}
+							</p>{/if}
+					</div>
+
 					<label
-						class="input numeric flex w-full items-center gap-2"
-						for="bonus"
+						class="mt-5 flex cursor-pointer items-center justify-between gap-4"
+						for="passport"
 					>
+						<span>
+							<strong class="block font-semibold"
+								>{translate($locale, 'event.passportLabel')}</strong
+							>
+							<span
+								id="passport-hint"
+								class="text-base-content/60 mt-1 block text-sm"
+								>{translate($locale, 'event.passportHint')}</span
+							>
+						</span>
 						<input
-							id="bonus"
-							class="min-w-0 grow"
-							name="bonus"
-							type="text"
-							inputmode="decimal"
-							enterkeyhint="next"
-							autocomplete="off"
-							required
-							bind:value={bonus}
-							aria-invalid={errors.bonus ? 'true' : undefined}
-							aria-describedby={`bonus-hint${errors.bonus ? ' bonus-error' : ''}`}
-							onblur={() => validateAndSet('bonus')}
-							oninput={(event) => handleFieldInput('bonus', event)}
+							id="passport"
+							class="toggle toggle-primary shrink-0"
+							name="passport"
+							type="checkbox"
+							value="1"
+							bind:checked={passport}
+							aria-describedby="passport-hint"
+							onchange={invalidateCalculation}
 						/>
-						<span class="text-base-content/60 font-bold"
-							>{translate($locale, 'event.bonusUnit')}</span
-						>
 					</label>
-					<p
-						id="bonus-hint"
-						class="text-base-content/65 mt-2 text-sm leading-relaxed"
+				</fieldset>
+
+				<details
+					class="collapse-arrow bg-base-200 collapse mt-5"
+					bind:open={searchLimitsOpen}
+				>
+					<summary class="collapse-title font-semibold"
+						>{translate($locale, 'event.limitLegend')}</summary
 					>
-						{translate($locale, 'event.bonusHint')}
-					</p>
-					{#if errors.bonus}<p
-							id="bonus-error"
-							class="text-error mt-2 text-sm font-semibold"
-						>
-							{translate($locale, errors.bonus)}
-						</p>{/if}
-				</div>
-
-				<label
-					class="border-base-300 bg-base-200 mt-5 flex min-h-20 cursor-pointer items-center justify-between gap-4 rounded-lg border p-4"
-					for="passport"
-				>
-					<span>
-						<strong class="block"
-							>{translate($locale, 'event.passportLabel')}</strong
-						>
-						<span
-							id="passport-hint"
-							class="text-base-content/65 mt-1 block text-sm leading-relaxed"
-							>{translate($locale, 'event.passportHint')}</span
-						>
-					</span>
-					<input
-						id="passport"
-						class="toggle toggle-primary shrink-0"
-						name="passport"
-						type="checkbox"
-						value="1"
-						bind:checked={passport}
-						aria-describedby="passport-hint"
-						onchange={invalidateCalculation}
-					/>
-				</label>
-			</fieldset>
-
-			<details
-				class="border-base-300 bg-base-200 collapse mt-5 rounded-lg border"
-				bind:open={searchLimitsOpen}
-			>
-				<summary class="collapse-title min-h-14 py-4 font-bold"
-					>{translate($locale, 'event.limitLegend')}</summary
-				>
-				<div
-					class="collapse-content grid gap-5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2"
-				>
-					<div class="fieldset p-0">
-						<label class="label pb-1 font-bold" for="maxJumps"
-							>{translate($locale, 'event.maxJumpsLabel')}</label
-						>
-						<input
-							id="maxJumps"
-							class="input numeric w-full"
-							name="maxJumps"
-							type="text"
-							inputmode="numeric"
-							enterkeyhint="next"
-							required
-							bind:value={maxJumps}
-							aria-invalid={errors.maxJumps ? 'true' : undefined}
-							aria-describedby={`max-jumps-hint${errors.maxJumps ? ' max-jumps-error' : ''}`}
-							onblur={() => validateAndSet('maxJumps')}
-							oninput={(event) => handleFieldInput('maxJumps', event)}
-						/>
-						<p
-							id="max-jumps-hint"
-							class="text-base-content/65 mt-2 text-sm leading-relaxed"
-						>
-							{translate($locale, 'event.maxJumpsHint')}
-						</p>
-						{#if errors.maxJumps}<p
-								id="max-jumps-error"
-								class="text-error mt-2 text-sm font-semibold"
+					<div class="collapse-content grid gap-4 sm:grid-cols-2">
+						<div class="fieldset p-0">
+							<label class="label font-semibold" for="maxJumps"
+								>{translate($locale, 'event.maxJumpsLabel')}</label
 							>
-								{translate($locale, errors.maxJumps)}
-							</p>{/if}
-					</div>
+							<input
+								id="maxJumps"
+								class="input numeric w-full"
+								name="maxJumps"
+								type="text"
+								inputmode="numeric"
+								enterkeyhint="next"
+								required
+								bind:value={maxJumps}
+								aria-invalid={errors.maxJumps ? 'true' : undefined}
+								aria-describedby={`max-jumps-hint${errors.maxJumps ? ' max-jumps-error' : ''}`}
+								onblur={() => validateAndSet('maxJumps')}
+								oninput={(event) => handleFieldInput('maxJumps', event)}
+							/>
+							<p id="max-jumps-hint" class="text-base-content/60 mt-1 text-sm">
+								{translate($locale, 'event.maxJumpsHint')}
+							</p>
+							{#if errors.maxJumps}<p
+									id="max-jumps-error"
+									class="text-error mt-1 text-sm"
+								>
+									{translate($locale, errors.maxJumps)}
+								</p>{/if}
+						</div>
 
-					<div class="fieldset p-0">
-						<label class="label pb-1 font-bold" for="maxRuns"
-							>{translate($locale, 'event.maxRunsLabel')}</label
-						>
-						<input
-							id="maxRuns"
-							class="input numeric w-full"
-							name="maxRuns"
-							type="text"
-							inputmode="numeric"
-							enterkeyhint="done"
-							required
-							bind:value={maxRuns}
-							aria-invalid={errors.maxRuns ? 'true' : undefined}
-							aria-describedby={`max-runs-hint${errors.maxRuns ? ' max-runs-error' : ''}`}
-							onblur={() => validateAndSet('maxRuns')}
-							oninput={(event) => handleFieldInput('maxRuns', event)}
-						/>
-						<p
-							id="max-runs-hint"
-							class="text-base-content/65 mt-2 text-sm leading-relaxed"
-						>
-							{translate($locale, 'event.maxRunsHint')}
-						</p>
-						{#if errors.maxRuns}<p
-								id="max-runs-error"
-								class="text-error mt-2 text-sm font-semibold"
+						<div class="fieldset p-0">
+							<label class="label font-semibold" for="maxRuns"
+								>{translate($locale, 'event.maxRunsLabel')}</label
 							>
-								{translate($locale, errors.maxRuns)}
-							</p>{/if}
+							<input
+								id="maxRuns"
+								class="input numeric w-full"
+								name="maxRuns"
+								type="text"
+								inputmode="numeric"
+								enterkeyhint="done"
+								required
+								bind:value={maxRuns}
+								aria-invalid={errors.maxRuns ? 'true' : undefined}
+								aria-describedby={`max-runs-hint${errors.maxRuns ? ' max-runs-error' : ''}`}
+								onblur={() => validateAndSet('maxRuns')}
+								oninput={(event) => handleFieldInput('maxRuns', event)}
+							/>
+							<p id="max-runs-hint" class="text-base-content/60 mt-1 text-sm">
+								{translate($locale, 'event.maxRunsHint')}
+							</p>
+							{#if errors.maxRuns}<p
+									id="max-runs-error"
+									class="text-error mt-1 text-sm"
+								>
+									{translate($locale, errors.maxRuns)}
+								</p>{/if}
+						</div>
 					</div>
-				</div>
-			</details>
+				</details>
 
-			<div
-				class="mt-6 grid gap-3 sm:grid-cols-[1fr_auto] lg:grid-cols-1 xl:grid-cols-[1fr_auto]"
-			>
-				<button class="btn btn-primary whitespace-nowrap" type="submit"
-					>{translate($locale, 'event.calculate')}</button
-				>
-				<button
-					class="btn btn-ghost whitespace-nowrap"
-					type="button"
-					onclick={loadExample}>{translate($locale, 'event.example')}</button
-				>
+				<div class="mt-5 grid gap-2 sm:grid-cols-[1fr_auto]">
+					<button class="btn btn-primary" type="submit"
+						>{translate($locale, 'event.calculate')}</button
+					>
+					<button class="btn" type="button" onclick={loadExample}
+						>{translate($locale, 'event.example')}</button
+					>
+				</div>
 			</div>
 		</form>
 
-		<section class="min-w-0" aria-labelledby="result-heading">
+		<section class="min-w-0 space-y-4" aria-labelledby="result-heading">
 			<h2 id="result-heading" class="sr-only">
 				{translate($locale, 'event.resultHeading')}
 			</h2>
 
 			{#if queryNotice}
-				<div class="alert alert-warning mb-4" role="status">
+				<div class="alert alert-warning" role="status">
 					<span>{translate($locale, 'event.queryIgnored')}</span>
 				</div>
 			{/if}
 
 			{#if !result}
-				<div
-					class="border-base-300 bg-base-100 rounded-box flex min-h-72 flex-col justify-center border p-6 sm:p-8"
-				>
-					<h3 class="text-2xl font-black tracking-[-0.035em]">
-						{translate($locale, 'event.emptyHeading')}
-					</h3>
-					<p class="text-base-content/70 mt-3 max-w-xl leading-relaxed">
-						{translate($locale, 'event.emptyBody')}
-					</p>
+				<div class="card bg-base-100 shadow-sm">
+					<div class="card-body p-5 sm:p-6">
+						<h3 class="card-title text-lg">
+							{translate($locale, 'event.resultHeading')}
+						</h3>
+						<p class="text-base-content/70">
+							{translate($locale, 'event.emptyBody')}
+						</p>
+					</div>
 				</div>
 			{:else if !result.ok}
 				<div class="alert alert-error items-start" role="alert">
 					<div>
-						<h3 class="font-black">
+						<h3 class="font-bold">
 							{translate($locale, 'event.resultHeading')}
 						</h3>
-						<p class="mt-1 leading-relaxed">
+						<p class="mt-1">
 							{translate($locale, resultErrorMessage(result))}
 						</p>
 					</div>
 				</div>
 			{:else if result.delta === 0n}
 				<div
-					class="border-primary bg-base-100 rounded-box border p-6 sm:p-8"
+					class="card bg-base-100 shadow-sm"
 					role="status"
 					aria-live="polite"
 					aria-atomic="true"
 				>
-					<h3 class="text-2xl font-black tracking-[-0.035em]">
-						{translate($locale, 'event.noPlayHeading')}
-					</h3>
-					<p class="text-base-content/70 mt-3">
-						{translate($locale, 'event.noPlayBody')}
-					</p>
+					<div class="card-body p-5 sm:p-6">
+						<h3 class="card-title text-lg">
+							{translate($locale, 'event.noPlayHeading')}
+						</h3>
+						<p class="text-base-content/70">
+							{translate($locale, 'event.noPlayBody')}
+						</p>
+					</div>
 				</div>
 			{:else}
 				<div
-					class="border-primary bg-primary text-primary-content rounded-box border p-6 sm:p-8"
+					class="stats bg-base-100 w-full shadow-sm"
 					role="status"
 					aria-live="polite"
 					aria-atomic="true"
 				>
-					<p class="numeric text-4xl font-black tracking-[-0.05em] sm:text-5xl">
-						{translate($locale, 'event.delta', {
-							points: formatInteger($locale, result.delta)
-						})}
-					</p>
-					<p class="mt-3 font-semibold">
-						{translate(
-							$locale,
-							result.plans.length === 1
-								? 'event.planCountOne'
-								: 'event.planCount',
-							{ count: result.plans.length }
-						)}
-					</p>
+					<div class="stat">
+						<div class="stat-title">
+							{translate($locale, 'event.resultHeading')}
+						</div>
+						<div class="stat-value numeric text-3xl">
+							{translate($locale, 'event.delta', {
+								points: formatInteger($locale, result.delta)
+							})}
+						</div>
+						<div class="stat-desc mt-1">
+							{translate(
+								$locale,
+								result.plans.length === 1
+									? 'event.planCountOne'
+									: 'event.planCount',
+								{ count: result.plans.length }
+							)}
+						</div>
+					</div>
 				</div>
 
 				{#if result.inferred}
-					<div class="alert alert-warning mt-4" role="status">
+					<div class="alert alert-warning" role="status">
 						<span>{translate($locale, 'event.inferred')}</span>
 					</div>
 				{/if}
 
-				<div class="mt-4 grid gap-4">
+				<div class="grid gap-4">
 					{#each result.plans as plan, index}
-						<article
-							class="border-base-300 bg-base-100 rounded-box border p-5 sm:p-6"
-						>
-							<header
-								class="flex flex-wrap items-baseline justify-between gap-3"
-							>
-								<h3 class="text-xl font-black tracking-[-0.03em]">
-									{translate($locale, 'event.planLabel', { index: index + 1 })}
-								</h3>
-								<span
-									class="badge badge-primary badge-outline min-h-8 px-3 font-bold"
-									>{translate(
-										$locale,
-										plan.plays === 1 ? 'event.playsOne' : 'event.plays',
-										{ count: plan.plays }
-									)}</span
+						<article class="card bg-base-100 shadow-sm">
+							<div class="card-body gap-4 p-5 sm:p-6">
+								<header
+									class="flex flex-wrap items-center justify-between gap-3"
 								>
-							</header>
+									<h3 class="card-title text-lg">
+										{translate($locale, 'event.planLabel', {
+											index: index + 1
+										})}
+									</h3>
+									<span class="badge badge-outline"
+										>{translate(
+											$locale,
+											plan.plays === 1 ? 'event.playsOne' : 'event.plays',
+											{ count: plan.plays }
+										)}</span
+									>
+								</header>
 
-							<div class="mt-5 grid gap-3 sm:grid-cols-2">
-								{#each groupPlan(plan) as group}
-									<div class="bg-base-200 rounded-lg p-4">
-										<p class="numeric text-lg font-black">
-											{group.count === 1
-												? translate(
-														$locale,
-														group.jumps === 1
-															? 'event.actionOne'
-															: 'event.action',
-														{ jumps: group.jumps }
-													)
-												: translate(
-														$locale,
-														group.jumps === 1
-															? 'event.actionRepeatedOne'
-															: 'event.actionRepeated',
-														{ jumps: group.jumps, count: group.count }
-													)}
-										</p>
-										<p class="text-base-content/65 numeric mt-1 text-sm">
-											{translate($locale, 'event.actionReward', {
-												points: formatInteger($locale, group.reward)
-											})}
-										</p>
-									</div>
-								{/each}
+								<div class="overflow-x-auto">
+									<table class="table-sm table">
+										<tbody>
+											{#each groupPlan(plan) as group}
+												<tr>
+													<th class="numeric" scope="row">
+														{group.count === 1
+															? translate(
+																	$locale,
+																	group.jumps === 1
+																		? 'event.actionOne'
+																		: 'event.action',
+																	{ jumps: group.jumps }
+																)
+															: translate(
+																	$locale,
+																	group.jumps === 1
+																		? 'event.actionRepeatedOne'
+																		: 'event.actionRepeated',
+																	{ jumps: group.jumps, count: group.count }
+																)}
+													</th>
+													<td class="numeric text-right">
+														{translate($locale, 'event.actionReward', {
+															points: formatInteger($locale, group.reward)
+														})}
+													</td>
+												</tr>
+											{/each}
+										</tbody>
+									</table>
+								</div>
+
+								<footer
+									class="border-base-300 numeric flex flex-wrap justify-between gap-2 border-t pt-3 text-sm"
+								>
+									<span
+										>{translate(
+											$locale,
+											plan.totalJumps === 1
+												? 'event.totalJumpsOne'
+												: 'event.totalJumps',
+											{ count: plan.totalJumps }
+										)}</span
+									>
+									<span
+										>{translate($locale, 'event.planReward', {
+											points: formatInteger($locale, plan.reward)
+										})}</span
+									>
+								</footer>
 							</div>
-
-							<footer
-								class="text-base-content/70 numeric mt-5 flex flex-wrap justify-between gap-2 text-sm font-semibold"
-							>
-								<span
-									>{translate(
-										$locale,
-										plan.totalJumps === 1
-											? 'event.totalJumpsOne'
-											: 'event.totalJumps',
-										{ count: plan.totalJumps }
-									)}</span
-								>
-								<span
-									>{translate($locale, 'event.planReward', {
-										points: formatInteger($locale, plan.reward)
-									})}</span
-								>
-							</footer>
 						</article>
 					{/each}
 				</div>
 
-				<div class="mt-4 grid gap-3 sm:grid-cols-2">
+				<div class="join grid grid-cols-2">
 					<button
-						class="btn btn-outline whitespace-nowrap"
+						class="btn btn-outline join-item"
 						type="button"
 						onclick={copyCurrentUrl}
 						>{translate($locale, 'event.copyUrl')}</button
 					>
 					<a
-						class="btn btn-outline whitespace-nowrap"
+						class="btn btn-outline join-item"
 						href={xShareHref}
 						target="_blank"
 						rel="noreferrer">{translate($locale, 'event.shareX')}</a
 					>
 				</div>
-				{#if copyStatus}<p
-						class="text-base-content/70 mt-3 text-sm"
-						role="status"
-					>
+				{#if copyStatus}<p class="text-base-content/70 text-sm" role="status">
 						{translate($locale, copyStatus)}
 					</p>{/if}
 			{/if}
 		</section>
 	</div>
 
-	<details class="border-base-300 bg-base-100 rounded-box collapse mt-8 border">
-		<summary
-			class="collapse-title min-h-16 px-5 py-5 text-lg font-black sm:px-7"
+	<details class="collapse-arrow bg-base-100 collapse mt-6 shadow-sm">
+		<summary class="collapse-title text-lg font-semibold"
 			>{translate($locale, 'event.formulaHeading')}</summary
 		>
-		<div class="collapse-content px-5 pb-6 sm:px-7 sm:pb-7">
-			<p class="text-base-content/75 max-w-3xl leading-relaxed">
+		<div class="collapse-content">
+			<p class="text-base-content/70">
 				{translate($locale, 'event.formulaIntro')}
 			</p>
-			<div class="mt-4 grid gap-3 lg:grid-cols-2">
+			<div class="mt-4 grid gap-2">
 				<code
-					class="bg-base-200 numeric block overflow-x-auto rounded-lg p-4 text-sm font-bold"
+					class="bg-base-200 numeric block overflow-x-auto rounded p-3 text-sm"
 					>{translate($locale, 'event.formulaBase')}</code
 				>
 				<code
-					class="bg-base-200 numeric block overflow-x-auto rounded-lg p-4 text-sm font-bold"
+					class="bg-base-200 numeric block overflow-x-auto rounded p-3 text-sm"
 					>{translate($locale, 'event.formulaReward')}</code
 				>
 			</div>
-			<div
-				class="text-base-content/75 mt-5 grid max-w-4xl gap-3 text-sm leading-relaxed"
-			>
+			<div class="text-base-content/70 mt-4 grid gap-2 text-sm">
 				<p>{translate($locale, 'event.formulaBoundary')}</p>
 				<p>{translate($locale, 'event.serverNote')}</p>
 				<p>{translate($locale, 'event.boostNote')}</p>
 			</div>
 			<a
-				class="link link-primary mt-5 inline-flex min-h-12 items-center font-bold"
+				class="link link-primary mt-4 inline-block"
 				href="https://forum.gamer.com.tw/C.php?bsn=84454&last=1&snA=600&tnum=1"
 				target="_blank"
 				rel="noreferrer"

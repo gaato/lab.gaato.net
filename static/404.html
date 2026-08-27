@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="theme-color" content="#3158c9" />
+		<meta name="theme-color" content="#f2f2f2" />
 		<meta name="robots" content="noindex" />
 		<title>ページが見つかりません | gaato lab</title>
 		<link rel="icon" href="/favicon.svg" />
@@ -11,15 +11,14 @@
 			:root {
 				color-scheme: light dark;
 				font-family:
-					Inter,
 					ui-sans-serif,
 					system-ui,
 					-apple-system,
 					BlinkMacSystemFont,
 					'Segoe UI',
 					sans-serif;
-				background: #f7f7f2;
-				color: #17191f;
+				background: #f2f2f2;
+				color: #1f2937;
 			}
 
 			* {
@@ -27,7 +26,7 @@
 			}
 
 			body {
-				min-height: 100vh;
+				min-height: 100dvh;
 				margin: 0;
 				display: grid;
 				place-items: center;
@@ -35,35 +34,30 @@
 			}
 
 			main {
-				width: min(100%, 42rem);
-				border: 1px solid #d8d9df;
-				border-radius: 1.25rem;
-				background: #fff;
-				padding: clamp(1.5rem, 6vw, 4rem);
+				width: min(100%, 32rem);
+				text-align: center;
 			}
 
 			.status {
-				margin: 0 0 1rem;
-				color: #3158c9;
-				font-size: 0.8rem;
-				font-weight: 800;
-				letter-spacing: 0.18em;
+				margin: 0;
+				color: #6b7280;
+				font-size: 0.875rem;
+				font-weight: 600;
 			}
 
 			h1 {
-				margin: 0;
-				font-size: clamp(2.25rem, 8vw, 4.5rem);
-				line-height: 1.05;
-				letter-spacing: -0.055em;
+				margin: 0.5rem 0 0;
+				font-size: 1.875rem;
+				line-height: 1.2;
 			}
 
 			p {
-				margin: 1.25rem 0 0;
-				line-height: 1.75;
+				margin: 1rem 0 0;
+				line-height: 1.6;
 			}
 
 			.english {
-				color: #626673;
+				color: #6b7280;
 				font-size: 0.95rem;
 			}
 
@@ -72,16 +66,17 @@
 				min-height: 3rem;
 				align-items: center;
 				margin-top: 2rem;
-				border-radius: 0.75rem;
-				background: #3158c9;
+				justify-content: center;
+				border-radius: 0.5rem;
+				background: #605dff;
 				color: #fff;
-				font-weight: 800;
+				font-weight: 600;
 				padding: 0.75rem 1.25rem;
 				text-decoration: none;
 			}
 
 			a:hover {
-				background: #2447aa;
+				background: #4c49d8;
 			}
 
 			a:focus-visible {
@@ -91,21 +86,16 @@
 
 			@media (prefers-color-scheme: dark) {
 				:root {
-					background: #101218;
-					color: #f4f5f8;
-				}
-
-				main {
-					border-color: #363a46;
-					background: #191c24;
+					background: #1d232a;
+					color: #a6adbb;
 				}
 
 				.status {
-					color: #9db3ff;
+					color: #9ca3af;
 				}
 
 				.english {
-					color: #b8bdca;
+					color: #9ca3af;
 				}
 
 				a:focus-visible {
@@ -116,13 +106,13 @@
 	</head>
 	<body>
 		<main aria-labelledby="not-found-heading">
-			<p class="status">404 · GAATO LAB</p>
+			<p class="status">404</p>
 			<h1 id="not-found-heading">ページが見つかりません</h1>
 			<p>URLが正しいか確認するか、ツール一覧へ戻ってください。</p>
 			<p class="english" lang="en">
 				Page not found. Check the URL or return to the tool collection.
 			</p>
-			<a href="/">ツール一覧へ戻る</a>
+			<a href="/">ツール一覧へ戻る / <span lang="en">All tools</span></a>
 		</main>
 	</body>
 </html>

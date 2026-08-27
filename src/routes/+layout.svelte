@@ -62,24 +62,24 @@
 </script>
 
 <div class="flex min-h-[100dvh] flex-col">
-	<header class="border-base-300 bg-base-100/94 border-b backdrop-blur-sm">
-		<div
-			class="mx-auto flex min-h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"
-		>
-			<a
-				class="text-base-content hover:text-primary inline-flex min-h-12 items-center text-lg font-black tracking-[-0.04em] transition-colors"
-				href="/?lang={$locale}"
-			>
-				{translate($locale, 'site.name')}
-			</a>
+	<header class="border-base-300 bg-base-100 border-b">
+		<div class="navbar mx-auto w-full max-w-5xl px-4">
+			<div class="flex-1">
+				<a
+					class="btn btn-ghost px-2 text-lg font-semibold"
+					href="/?lang={$locale}"
+				>
+					{translate($locale, 'site.name')}
+				</a>
+			</div>
 
-			<div class="flex items-center gap-2">
+			<div class="flex-none">
 				<label class="sr-only" for="site-language"
 					>{translate($locale, 'site.language')}</label
 				>
 				<select
 					id="site-language"
-					class="select select-sm border-base-300 bg-base-100 min-h-12 min-w-32 font-semibold"
+					class="select select-bordered min-w-32"
 					value={selectedLocale}
 					onchange={changeLanguage}
 				>
@@ -97,16 +97,9 @@
 		{@render children()}
 	</main>
 
-	<footer class="border-base-300 border-t">
-		<div
-			class="text-base-content/70 mx-auto flex w-full max-w-7xl flex-col gap-2 px-4 py-8 text-sm sm:px-6 lg:px-8"
-		>
-			<strong class="text-base-content font-bold"
-				>{translate($locale, 'site.name')}</strong
-			>
-			<p class="max-w-3xl leading-relaxed">
-				{translate($locale, 'site.unofficial')}
-			</p>
-		</div>
+	<footer class="footer footer-center border-base-300 border-t p-4">
+		<p class="text-base-content/60 text-xs">
+			{translate($locale, 'site.unofficial')}
+		</p>
 	</footer>
 </div>
