@@ -4,16 +4,38 @@ const checks = [
 	{
 		path: '/',
 		status: 200,
-		expectedTexts: ['gaato lab', 'ホロドリ：イベントPt調整'],
+		expectedTexts: [
+			'gaato lab',
+			'ホロドリ：イベントPt調整',
+			'ホロドリ：ハイ&amp;ロー手札判断'
+		],
 		unexpectedTexts: ['カバー株式会社']
 	},
 	{
-		path: '/event-point/?current=1144899&target=1145141&bonus=20&passport=1&lang=ja',
+		path: '/holodori/',
+		status: 200,
+		expectedTexts: [
+			'ホロドリ：イベントPt調整',
+			'ホロドリ：ハイ&amp;ロー手札判断',
+			'カバー株式会社'
+		]
+	},
+	{
+		path: '/holodori/event-pt/?current=1144899&target=1145141&bonus=20&passport=1&lang=ja',
 		status: 200,
 		expectedTexts: [
 			'ホロドリ：イベントPt調整',
 			'ホッピンロープ',
 			'イベントPtブースト使用時は未対応',
+			'カバー株式会社'
+		]
+	},
+	{
+		path: '/holodori/high-low/?lang=ja',
+		status: 200,
+		expectedTexts: [
+			'ホロドリ：ハイ&amp;ロー手札判断',
+			'カードオブグリード',
 			'カバー株式会社'
 		]
 	},

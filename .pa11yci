@@ -9,6 +9,8 @@
 	},
 	"urls": [
 		"http://127.0.0.1:4173/",
-		"http://127.0.0.1:4173/event-point/?current=1144899&target=1145141&bonus=20&passport=1"
+		"http://127.0.0.1:4173/holodori/",
+		"http://127.0.0.1:4173/holodori/event-pt/?current=1144899&target=1145141&bonus=20&passport=1",
+		"http://127.0.0.1:4173/holodori/high-low/"
 	]
 }

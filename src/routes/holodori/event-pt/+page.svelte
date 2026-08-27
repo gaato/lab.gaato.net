@@ -236,7 +236,7 @@
 			lang: $locale
 		});
 		if (passport) parameters.set('passport', '1');
-		const nextPath = `/event-point/?${parameters.toString()}`;
+		const nextPath = `/holodori/event-pt/?${parameters.toString()}`;
 		const nextUrl = new URL(nextPath, window.location.origin);
 		lastCalculationQueryKey = calculationQueryKey(parameters);
 		navigatedUrl = nextUrl.toString();
@@ -408,12 +408,20 @@
 </svelte:head>
 
 <div class="mx-auto w-full max-w-5xl px-4 py-6 sm:py-8">
-	<div class="breadcrumbs mb-2 text-sm">
+	<nav
+		class="breadcrumbs mb-2 text-sm"
+		aria-label={translate($locale, 'site.breadcrumbs')}
+	>
 		<ul>
 			<li><a href="/?lang={$locale}">{translate($locale, 'site.home')}</a></li>
+			<li>
+				<a href="/holodori/?lang={$locale}"
+					>{translate($locale, 'site.holodori')}</a
+				>
+			</li>
 			<li>{translate($locale, 'event.heading')}</li>
 		</ul>
-	</div>
+	</nav>
 
 	<header>
 		<h1 class="text-2xl font-bold">{translate($locale, 'event.heading')}</h1>
@@ -426,7 +434,7 @@
 		<form
 			bind:this={formElement}
 			class="card bg-base-100 shadow-sm"
-			action="/event-point/"
+			action="/holodori/event-pt/"
 			method="GET"
 			novalidate
 			onsubmit={handleSubmit}
@@ -849,6 +857,6 @@
 	</details>
 
 	<footer class="text-base-content/60 mt-6 text-center text-xs">
-		{translate($locale, 'event.unofficial')}
+		{translate($locale, 'holodori.unofficial')}
 	</footer>
 </div>

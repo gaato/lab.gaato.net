@@ -1,0 +1,2 @@
+/event-point /holodori/event-pt/ 301
+/event-point/* /holodori/event-pt/:splat 301
