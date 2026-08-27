@@ -1,0 +1,211 @@
+import assert from 'node:assert/strict';
+
+import puppeteer from 'puppeteer';
+
+const baseUrl = new URL(process.env.SITE_URL ?? 'http://127.0.0.1:4173');
+const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+
+const browser = await puppeteer.launch({
+	headless: true,
+	...(executablePath ? { executablePath } : {}),
+	args: ['--disable-dev-shm-usage', '--no-sandbox']
+});
+
+const page = await browser.newPage();
+page.setDefaultTimeout(15_000);
+const pageErrors = [];
+page.on('pageerror', (error) => pageErrors.push(error.message));
+
+async function open(path, expectedStatus = 200) {
+	const response = await page.goto(new URL(path, baseUrl).toString(), {
+		waitUntil: 'networkidle0'
+	});
+	assert(response, `No navigation response for ${path}`);
+	assert.equal(
+		response.status(),
+		expectedStatus,
+		`Unexpected status for ${path}`
+	);
+	await page.waitForSelector('h1');
+}
+
+async function mainText() {
+	return page.$eval('main', (element) => element.textContent ?? '');
+}
+
+async function waitForMainText(fragment) {
+	await page.waitForFunction(
+		(expected) =>
+			document.querySelector('main')?.textContent?.includes(expected),
+		{},
+		fragment
+	);
+}
+
+async function setValue(selector, value) {
+	await page.$eval(
+		selector,
+		(element, nextValue) => {
+			const input = /** @type {HTMLInputElement} */ (element);
+			input.value = nextValue;
+			input.dispatchEvent(new InputEvent('input', { bubbles: true }));
+		},
+		value
+	);
+}
+
+try {
+	await open(
+		'/event-point/?current=1144899&target=1145141&bonus=20&passport=1&maxJumps=50&maxRuns=8&lang=ja'
+	);
+	await waitForMainText('あと 242 Pt');
+
+	const exactPlanText = await mainText();
+	assert.match(exactPlanText, /3回成功/u);
+	assert.match(exactPlanText, /4回成功/u);
+
+	await setValue('#current', '123456789');
+	await page.waitForFunction(
+		() => !document.querySelector('main')?.textContent?.includes('あと 242 Pt')
+	);
+	assert.equal(
+		await page.$eval(
+			'#current',
+			(element) => /** @type {HTMLInputElement} */ (element).value
+		),
+		'123456789'
+	);
+
+	await page.select('#site-language', 'en');
+	await page.waitForFunction(
+		() =>
+			document.documentElement.lang === 'en' &&
+			new URL(window.location.href).searchParams.get('lang') === 'en'
+	);
+	assert.equal(
+		await page.$eval(
+			'#current',
+			(element) => /** @type {HTMLInputElement} */ (element).value
+		),
+		'123456789',
+		'Changing language discarded an unsaved form value'
+	);
+
+	await setValue('#current', '100');
+	await setValue('#target', '99');
+	await setValue('#bonus', '0');
+	await setValue('#maxJumps', '50');
+	await setValue('#maxRuns', '8');
+	const passportChecked = await page.$eval(
+		'#passport',
+		(element) => /** @type {HTMLInputElement} */ (element).checked
+	);
+	if (passportChecked) await page.click('#passport');
+	await page.click('button[type="submit"]');
+	await waitForMainText('Target Pt must be at least the current Pt');
+
+	await open(
+		'/event-point/?current=1144899&target=1145141&bonus=20&passport=1&maxJumps=50&maxRuns=8&lang=en'
+	);
+	await waitForMainText('242 Pt remaining');
+	const xShareHref = await page.$eval(
+		'a[href^="https://twitter.com/intent/tweet"]',
+		(element) => /** @type {HTMLAnchorElement} */ (element).href
+	);
+	const sharedPageUrl = new URL(xShareHref).searchParams.get('url');
+	assert(sharedPageUrl, 'The X share link has no nested page URL');
+	assert.equal(
+		new URL(sharedPageUrl).searchParams.get('lang'),
+		'en',
+		'The X share link did not preserve the active language'
+	);
+
+	const searchLimitsOpen = await page.$eval(
+		'form details',
+		(element) => /** @type {HTMLDetailsElement} */ (element).open
+	);
+	if (searchLimitsOpen) await page.click('form details summary');
+	await setValue('#maxJumps', '101');
+	await page.click('button[type="submit"]');
+	await page.waitForFunction(() =>
+		document.querySelector('form details')?.hasAttribute('open')
+	);
+	await page.waitForFunction(() => document.activeElement?.id === 'maxJumps');
+	assert.equal(
+		await page.evaluate(() => document.activeElement?.id),
+		'maxJumps',
+		'The first invalid advanced field did not receive focus'
+	);
+	assert.equal(
+		await page.$eval('#maxJumps', (element) => element.ariaInvalid),
+		'true'
+	);
+	await setValue('#maxJumps', 'abc');
+	assert.equal(
+		await page.$eval('#maxJumps', (element) => element.ariaInvalid),
+		'true',
+		'Editing an invalid field incorrectly cleared its invalid state'
+	);
+
+	await open('/event-point/?bonus=nope&maxRuns=999&lang=en');
+	await waitForMainText('The URL contains invalid or missing values');
+	assert.equal(
+		await page.$eval(
+			'#bonus',
+			(element) => /** @type {HTMLInputElement} */ (element).value
+		),
+		'nope'
+	);
+
+	await open(
+		'/event-point/?current=0&target=90&bonus=0&passport=yes&maxJumps=50&maxRuns=2&lang=en'
+	);
+	await waitForMainText('The URL contains invalid or missing values');
+	assert.equal(
+		await page.$eval(
+			'#passport',
+			(element) => /** @type {HTMLInputElement} */ (element).checked
+		),
+		false,
+		'An invalid passport query value was treated as enabled'
+	);
+
+	await open(
+		'/event-point/?current=9007199254740993&target=9007199254741038&bonus=0&passport=0&maxJumps=0&maxRuns=1&lang=en'
+	);
+	await waitForMainText('45 Pt remaining');
+	assert.equal(
+		await page.$eval(
+			'#current',
+			(element) => /** @type {HTMLInputElement} */ (element).value
+		),
+		'9007199254740993'
+	);
+	assert.match(await mainText(), /0 successes/u);
+
+	await open(
+		'/event-point/?current=0&target=47&bonus=0&passport=0&maxJumps=1&maxRuns=1&lang=en'
+	);
+	await waitForMainText('1 plan found');
+	const singularText = await mainText();
+	assert.match(singularText, /1 run/u);
+	assert.match(singularText, /1 success/u);
+	assert.doesNotMatch(singularText, /1 (?:runs|successes|plans)/u);
+
+	await open('/this-lab-route-does-not-exist/', 404);
+	assert.match(await mainText(), /Page not found/u);
+	assert.equal(
+		await page.$$eval('script', (elements) => elements.length),
+		0,
+		'The static 404 page unexpectedly requires JavaScript'
+	);
+	assert.deepEqual(
+		pageErrors,
+		[],
+		`Browser page errors: ${pageErrors.join('; ')}`
+	);
+
+	console.log('browser smoke passed');
+} finally {
+	await browser.close();
+}

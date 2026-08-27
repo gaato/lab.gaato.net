@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="theme-color" content="#3158c9" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
+		<script>
+			(() => {
+				try {
+					const supported = new Set(['ja', 'en']);
+					const query = new URLSearchParams(location.search).get('lang');
+					const stored = localStorage.getItem('lab.gaato.net.locale');
+					const browser = navigator.languages?.length
+						? navigator.languages
+						: [navigator.language];
+					const candidates = [query, stored, ...browser];
+					const selected = candidates
+						.map((value) => value?.trim().toLowerCase().split('-')[0])
+						.find((value) => value && supported.has(value));
+					document.documentElement.lang = selected ?? 'ja';
+				} catch {
+					// The prerendered Japanese default remains usable without storage access.
+				}
+			})();
+		</script>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

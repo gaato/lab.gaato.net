@@ -1,0 +1,50 @@
+{
+	"name": "lab-gaato-net",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"lint": "prettier --check .",
+		"format": "prettier --write .",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"smoke": "bun scripts/smoke.mjs",
+		"smoke:browser": "bun scripts/browser-smoke.mjs",
+		"verify": "bun run lint && bun run check && bun run test && bun run build",
+		"deploy": "wrangler deploy",
+		"deploy:dry-run": "wrangler deploy --dry-run"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-static": "^3.0.10",
+		"@sveltejs/kit": "^2.63.0",
+		"@sveltejs/vite-plugin-svelte": "^7.1.2",
+		"@tailwindcss/vite": "^4.3.0",
+		"@testing-library/jest-dom": "^7.0.1",
+		"@testing-library/svelte": "^5.4.2",
+		"@types/node": "^24.0.0",
+		"daisyui": "^5.7.4",
+		"jsdom": "^30.0.1",
+		"pa11y-ci": "^4.1.1",
+		"prettier": "^3.8.3",
+		"prettier-plugin-svelte": "^4.1.0",
+		"prettier-plugin-tailwindcss": "^0.8.0",
+		"puppeteer": "^24.43.1",
+		"svelte": "^5.56.1",
+		"svelte-check": "^4.6.0",
+		"tailwindcss": "^4.3.0",
+		"typescript": "^6.0.3",
+		"vite": "^8.0.16",
+		"vitest": "^4.1.8",
+		"wrangler": "^4.127.0"
+	},
+	"trustedDependencies": [
+		"esbuild",
+		"puppeteer",
+		"workerd"
+	]
+}

@@ -1,0 +1,14 @@
+{
+	"defaults": {
+		"standard": "WCAG2AA",
+		"timeout": 30000,
+		"wait": 500,
+		"chromeLaunchConfig": {
+			"args": ["--no-sandbox"]
+		}
+	},
+	"urls": [
+		"http://127.0.0.1:4173/",
+		"http://127.0.0.1:4173/event-point/?current=1144899&target=1145141&bonus=20&passport=1"
+	]
+}

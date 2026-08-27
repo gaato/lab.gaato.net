@@ -1,0 +1,160 @@
+@import 'tailwindcss';
+
+@plugin 'daisyui' {
+	themes: false;
+	logs: false;
+}
+
+@plugin 'daisyui/theme' {
+	name: 'lab-light';
+	default: true;
+	prefersdark: false;
+	color-scheme: light;
+	--color-base-100: oklch(98% 0.006 255);
+	--color-base-200: oklch(95% 0.009 255);
+	--color-base-300: oklch(89% 0.014 255);
+	--color-base-content: oklch(22% 0.024 260);
+	--color-primary: oklch(50% 0.2 264);
+	--color-primary-content: oklch(98% 0.006 255);
+	--color-secondary: oklch(35% 0.03 260);
+	--color-secondary-content: oklch(98% 0.006 255);
+	--color-accent: oklch(50% 0.2 264);
+	--color-accent-content: oklch(98% 0.006 255);
+	--color-neutral: oklch(27% 0.025 260);
+	--color-neutral-content: oklch(96% 0.009 255);
+	--color-info: oklch(57% 0.16 252);
+	--color-info-content: oklch(98% 0.006 255);
+	--color-success: oklch(55% 0.12 151);
+	--color-success-content: oklch(98% 0.006 255);
+	--color-warning: oklch(74% 0.14 76);
+	--color-warning-content: oklch(24% 0.04 76);
+	--color-error: oklch(55% 0.2 27);
+	--color-error-content: oklch(98% 0.006 255);
+	--radius-selector: 0.5rem;
+	--radius-field: 0.5rem;
+	--radius-box: 0.75rem;
+	--size-selector: 0.25rem;
+	--size-field: 0.25rem;
+	--border: 1px;
+	--depth: 0;
+	--noise: 0;
+}
+
+@plugin 'daisyui/theme' {
+	name: 'lab-dark';
+	default: false;
+	prefersdark: true;
+	color-scheme: dark;
+	--color-base-100: oklch(18% 0.018 260);
+	--color-base-200: oklch(14% 0.016 260);
+	--color-base-300: oklch(25% 0.022 260);
+	--color-base-content: oklch(92% 0.012 255);
+	--color-primary: oklch(70% 0.17 260);
+	--color-primary-content: oklch(16% 0.025 260);
+	--color-secondary: oklch(72% 0.025 255);
+	--color-secondary-content: oklch(16% 0.018 260);
+	--color-accent: oklch(70% 0.17 260);
+	--color-accent-content: oklch(16% 0.025 260);
+	--color-neutral: oklch(28% 0.023 260);
+	--color-neutral-content: oklch(93% 0.01 255);
+	--color-info: oklch(72% 0.14 252);
+	--color-info-content: oklch(16% 0.025 260);
+	--color-success: oklch(70% 0.12 151);
+	--color-success-content: oklch(16% 0.03 151);
+	--color-warning: oklch(78% 0.13 76);
+	--color-warning-content: oklch(20% 0.035 76);
+	--color-error: oklch(70% 0.17 27);
+	--color-error-content: oklch(16% 0.025 27);
+	--radius-selector: 0.5rem;
+	--radius-field: 0.5rem;
+	--radius-box: 0.75rem;
+	--size-selector: 0.25rem;
+	--size-field: 0.25rem;
+	--border: 1px;
+	--depth: 0;
+	--noise: 0;
+}
+
+:root {
+	font-family:
+		ui-sans-serif,
+		system-ui,
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		sans-serif;
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	background: var(--color-base-200);
+	color: var(--color-base-content);
+}
+
+html {
+	min-width: 20rem;
+	scrollbar-gutter: stable;
+	background: var(--color-base-200);
+}
+
+body {
+	min-height: 100dvh;
+	margin: 0;
+	background:
+		radial-gradient(
+			circle at 84% 8%,
+			color-mix(in oklch, var(--color-primary) 9%, transparent),
+			transparent 26rem
+		),
+		var(--color-base-200);
+}
+
+button,
+input,
+select {
+	font: inherit;
+}
+
+input,
+select,
+button,
+.btn {
+	min-height: 3rem;
+}
+
+input {
+	font-size: 1rem;
+}
+
+:where(a, button, input, select, summary):focus-visible {
+	outline: 3px solid var(--color-primary);
+	outline-offset: 3px;
+}
+
+:where(button, .btn):active {
+	transform: translateY(1px);
+}
+
+input:user-invalid,
+input[aria-invalid='true'] {
+	border-color: var(--color-error);
+	background: color-mix(in oklch, var(--color-error) 8%, var(--color-base-100));
+}
+
+::selection {
+	background: color-mix(in oklch, var(--color-primary) 28%, transparent);
+}
+
+.numeric {
+	font-variant-numeric: tabular-nums;
+	font-feature-settings: 'tnum';
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		scroll-behavior: auto !important;
+		transition-duration: 0.01ms !important;
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+	}
+}
