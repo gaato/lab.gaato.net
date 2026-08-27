@@ -10,18 +10,20 @@ const ja = {
 	'site.name': 'gaato lab',
 	'site.home': 'ツール一覧',
 	'site.language': '言語',
-	'site.unofficial':
-		'非公式のファンメイドツールです。カバー株式会社およびゲーム運営元とは関係ありません。',
 	'language.ja': '日本語',
 	'language.en': 'English',
 	'home.title': 'gaato lab',
 	'home.description': 'gaato labのツール一覧。',
 	'home.collection': 'ツール',
-	'home.eventPointTitle': 'イベントPt調整',
+	'home.eventPointTitle': 'ホロドリ：イベントPt調整',
 	'event.title': 'イベントPt調整 | gaato lab',
 	'event.description':
 		'ホロライブ ドリームスのイベントPtを、ホッピンロープで目標値に合わせる手順を計算します。',
+	'event.unofficial':
+		'非公式のファンメイドツールです。カバー株式会社およびゲーム運営元とは関係ありません。',
 	'event.heading': 'イベントPt調整',
+	'event.summary':
+		'ホッピンロープの成功回数を組み合わせて、目標Ptに合わせます。',
 	'event.zeroBoost': '0ブースト',
 	'event.formLegend': '条件',
 	'event.currentLabel': '現在Pt',
@@ -60,8 +62,6 @@ const ja = {
 	'event.copied': 'URLをコピーしました。',
 	'event.copyFailed':
 		'URLをコピーできませんでした。ブラウザのアドレス欄からコピーしてください。',
-	'event.shareX': 'Xで共有',
-	'event.shareText': 'イベントPtを{target}に合わせる手順を計算しました。',
 	'event.queryIgnored':
 		'URL内の値が無効または不足しているため、計算には使用していません。入力内容を確認してください。',
 	'event.inferred': '公開実測表にない回数は式で推定しています。',
@@ -110,18 +110,19 @@ const en: Catalog = {
 	'site.name': 'gaato lab',
 	'site.home': 'All tools',
 	'site.language': 'Language',
-	'site.unofficial':
-		'This is an unofficial fan-made tool. It is not affiliated with COVER Corporation or the game operator.',
 	'language.ja': '日本語',
 	'language.en': 'English',
 	'home.title': 'gaato lab',
 	'home.description': 'Tools on gaato lab.',
 	'home.collection': 'Tools',
-	'home.eventPointTitle': 'Event Pt calculator',
+	'home.eventPointTitle': 'hololive Dreams: Event Pt calculator',
 	'event.title': 'Event Pt adjustment | gaato lab',
 	'event.description':
 		'Calculate Hoppin Rope runs that reach an exact Event Pt target in hololive Dreams.',
+	'event.unofficial':
+		'This is an unofficial fan-made tool. It is not affiliated with COVER Corporation or the game operator.',
 	'event.heading': 'Event Pt calculator',
+	'event.summary': 'Combine Hoppin Rope success counts to reach the target Pt.',
 	'event.zeroBoost': '0 Boost',
 	'event.formLegend': 'Inputs',
 	'event.currentLabel': 'Current Pt',
@@ -161,8 +162,6 @@ const en: Catalog = {
 	'event.copied': 'URL copied.',
 	'event.copyFailed':
 		'The URL could not be copied. Copy it from your browser address bar.',
-	'event.shareX': 'Share on X',
-	'event.shareText': 'I calculated a plan to reach {target} Event Pt.',
 	'event.queryIgnored':
 		'The URL contains invalid or missing values, so it was not calculated. Check the form values.',
 	'event.inferred':

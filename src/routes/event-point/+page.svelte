@@ -404,16 +404,6 @@
 			);
 		}
 	}
-
-	$: shareText = calculatedInput
-		? translate($locale, 'event.shareText', {
-				target: formatInteger($locale, calculatedInput.target)
-			})
-		: translate($locale, 'event.heading');
-	$: xShareHref = `https://twitter.com/intent/tweet?${new URLSearchParams({
-		text: shareText,
-		url: shareUrl
-	}).toString()}`;
 </script>
 
 <svelte:head>
@@ -443,6 +433,9 @@
 			>{translate($locale, 'event.zeroBoost')}</span
 		>
 	</header>
+	<p class="text-base-content/70 mt-2 text-sm">
+		{translate($locale, 'event.summary')}
+	</p>
 
 	<div class="mt-6 grid items-start gap-6 lg:grid-cols-2">
 		<form
@@ -829,20 +822,11 @@
 					{/each}
 				</div>
 
-				<div class="join grid grid-cols-2">
-					<button
-						class="btn btn-outline join-item"
-						type="button"
-						onclick={copyCurrentUrl}
-						>{translate($locale, 'event.copyUrl')}</button
-					>
-					<a
-						class="btn btn-outline join-item"
-						href={xShareHref}
-						target="_blank"
-						rel="noreferrer">{translate($locale, 'event.shareX')}</a
-					>
-				</div>
+				<button
+					class="btn btn-outline w-full"
+					type="button"
+					onclick={copyCurrentUrl}>{translate($locale, 'event.copyUrl')}</button
+				>
 				{#if copyStatus}<p class="text-base-content/70 text-sm" role="status">
 						{translate($locale, copyStatus)}
 					</p>{/if}
@@ -883,4 +867,8 @@
 			</a>
 		</div>
 	</details>
+
+	<footer class="text-base-content/60 mt-6 text-center text-xs">
+		{translate($locale, 'event.unofficial')}
+	</footer>
 </div>

@@ -1,16 +1,21 @@
 const baseUrl = new URL(process.env.SITE_URL ?? 'http://127.0.0.1:4173');
 
 const checks = [
-	{ path: '/', status: 200, expectedText: 'gaato lab' },
+	{
+		path: '/',
+		status: 200,
+		expectedTexts: ['gaato lab', 'ホロドリ：イベントPt調整'],
+		unexpectedTexts: ['カバー株式会社']
+	},
 	{
 		path: '/event-point/?current=1144899&target=1145141&bonus=20&passport=1&lang=ja',
 		status: 200,
-		expectedText: 'イベントPt調整'
+		expectedTexts: ['イベントPt調整', 'ホッピンロープ', 'カバー株式会社']
 	},
 	{
 		path: '/this-lab-route-does-not-exist/',
 		status: 404,
-		expectedText: 'ページが見つかりません'
+		expectedTexts: ['ページが見つかりません']
 	}
 ];
 
@@ -46,10 +51,19 @@ for (const check of checks) {
 	if (!hasDocument)
 		failures.push(`${url.pathname}: response is not a complete HTML document`);
 	if (!hasHeading) failures.push(`${url.pathname}: response has no h1`);
-	if (!body.includes(check.expectedText)) {
-		failures.push(
-			`${url.pathname}: response does not contain ${JSON.stringify(check.expectedText)}`
-		);
+	for (const expectedText of check.expectedTexts) {
+		if (!body.includes(expectedText)) {
+			failures.push(
+				`${url.pathname}: response does not contain ${JSON.stringify(expectedText)}`
+			);
+		}
+	}
+	for (const unexpectedText of check.unexpectedTexts ?? []) {
+		if (body.includes(unexpectedText)) {
+			failures.push(
+				`${url.pathname}: response unexpectedly contains ${JSON.stringify(unexpectedText)}`
+			);
+		}
 	}
 
 	console.log(`${response.status} ${url.pathname}${url.search}`);

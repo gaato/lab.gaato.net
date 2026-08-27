@@ -96,10 +96,4 @@
 	<main class="flex-1">
 		{@render children()}
 	</main>
-
-	<footer class="footer footer-center border-base-300 border-t p-4">
-		<p class="text-base-content/60 text-xs">
-			{translate($locale, 'site.unofficial')}
-		</p>
-	</footer>
 </div>

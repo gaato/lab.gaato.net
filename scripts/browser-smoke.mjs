@@ -115,16 +115,24 @@ try {
 		'/event-point/?current=1144899&target=1145141&bonus=20&passport=1&maxJumps=50&maxRuns=8&lang=en'
 	);
 	await waitForMainText('242 Pt remaining');
-	const xShareHref = await page.$eval(
-		'a[href^="https://twitter.com/intent/tweet"]',
-		(element) => /** @type {HTMLAnchorElement} */ (element).href
-	);
-	const sharedPageUrl = new URL(xShareHref).searchParams.get('url');
-	assert(sharedPageUrl, 'The X share link has no nested page URL');
+	await page.evaluate(() => {
+		Object.defineProperty(navigator, 'clipboard', {
+			configurable: true,
+			value: {
+				writeText: async (text) => {
+					window.__copiedUrl = text;
+				}
+			}
+		});
+	});
+	await page.click('button.btn-outline');
+	await waitForMainText('URL copied');
+	const copiedPageUrl = await page.evaluate(() => window.__copiedUrl);
+	assert(copiedPageUrl, 'The copy button did not write a URL');
 	assert.equal(
-		new URL(sharedPageUrl).searchParams.get('lang'),
+		new URL(copiedPageUrl).searchParams.get('lang'),
 		'en',
-		'The X share link did not preserve the active language'
+		'The copied URL did not preserve the active language'
 	);
 
 	const searchLimitsOpen = await page.$eval(
