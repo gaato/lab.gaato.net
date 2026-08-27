@@ -23,8 +23,7 @@ const ja = {
 		'非公式のファンメイドツールです。カバー株式会社およびゲーム運営元とは関係ありません。',
 	'event.heading': 'イベントPt調整',
 	'event.summary':
-		'ホッピンロープの成功回数を組み合わせて、目標Ptに合わせます。',
-	'event.zeroBoost': '0ブースト',
+		'ホッピンロープの成功回数を組み合わせて、目標Ptに合わせます。イベントPtブースト使用時は未対応です。',
 	'event.formLegend': '条件',
 	'event.currentLabel': '現在Pt',
 	'event.targetLabel': '目標Pt',
@@ -82,7 +81,8 @@ const ja = {
 	'event.errorMaxRuns': '1から20までの整数を入力してください。',
 	'event.formErrorSummary': '入力内容を確認してください。',
 	'event.formulaHeading': '計算式',
-	'event.formulaIntro': '0ブースト時の獲得Ptには次の式を使います。',
+	'event.formulaIntro':
+		'イベントPtブーストを使用しない場合の獲得Ptには次の式を使います。',
 	'event.formulaBase': '基礎Pt = 45 + ceil(13 × 成功回数 ÷ 10)',
 	'event.formulaReward':
 		'獲得Pt = パスポート倍率 × ceil(基礎Pt × (1000 + ボーナスpermil) ÷ 1000)',
@@ -91,7 +91,7 @@ const ja = {
 	'event.source': '実測表',
 	'event.serverNote':
 		'実際の報酬はゲームサーバーが決定します。このツールは観測値から計算を再現するものです。',
-	'event.boostNote': 'ブースト使用時は未対応です。',
+	'event.boostNote': 'イベントPtブースト使用時は未対応です。',
 	'error.notFoundTitle': 'ページが見つかりません | gaato lab',
 	'error.genericTitle': 'エラー | gaato lab',
 	'error.notFoundDescription': '指定されたページは見つかりませんでした。',
@@ -122,8 +122,8 @@ const en: Catalog = {
 	'event.unofficial':
 		'This is an unofficial fan-made tool. It is not affiliated with COVER Corporation or the game operator.',
 	'event.heading': 'Event Pt calculator',
-	'event.summary': 'Combine Hoppin Rope success counts to reach the target Pt.',
-	'event.zeroBoost': '0 Boost',
+	'event.summary':
+		'Combine Hoppin Rope success counts to reach the target Pt. Event Pt Boost is not supported.',
 	'event.formLegend': 'Inputs',
 	'event.currentLabel': 'Current Pt',
 	'event.targetLabel': 'Target Pt',
@@ -184,7 +184,8 @@ const en: Catalog = {
 	'event.errorMaxRuns': 'Enter a whole number from 1 to 20.',
 	'event.formErrorSummary': 'Check the highlighted fields.',
 	'event.formulaHeading': 'Formula',
-	'event.formulaIntro': '0 Boost rewards use the following formula.',
+	'event.formulaIntro':
+		'Rewards without Event Pt Boost use the following formula.',
 	'event.formulaBase': 'Base Pt = 45 + ceil(13 × successes ÷ 10)',
 	'event.formulaReward':
 		'Reward Pt = Passport factor × ceil(Base Pt × (1000 + bonus permil) ÷ 1000)',

@@ -427,11 +427,8 @@
 		</ul>
 	</div>
 
-	<header class="flex flex-wrap items-center gap-3">
+	<header>
 		<h1 class="text-2xl font-bold">{translate($locale, 'event.heading')}</h1>
-		<span class="badge badge-outline"
-			>{translate($locale, 'event.zeroBoost')}</span
-		>
 	</header>
 	<p class="text-base-content/70 mt-2 text-sm">
 		{translate($locale, 'event.summary')}
