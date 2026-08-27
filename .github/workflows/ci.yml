@@ -113,4 +113,13 @@ jobs:
         if: vars.PRODUCTION_URL != ''
         env:
           SITE_URL: ${{ vars.PRODUCTION_URL }}
-        run: bun run smoke
+        run: |
+          for attempt in {1..12}; do
+            if bun run smoke; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 12 ]; then
+              exit 1
+            fi
+            sleep 5
+          done
