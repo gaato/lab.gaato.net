@@ -141,6 +141,10 @@ try {
 		'Event Pt breadcrumb hierarchy is incomplete'
 	);
 	await page.evaluate(() => {
+		Object.defineProperty(navigator, 'share', {
+			configurable: true,
+			value: undefined
+		});
 		Object.defineProperty(navigator, 'clipboard', {
 			configurable: true,
 			value: {
@@ -150,14 +154,25 @@ try {
 			}
 		});
 	});
-	await page.click('button.btn-outline');
+	await clickButtonText('Share this tool');
 	await waitForMainText('URL copied');
 	const copiedPageUrl = await page.evaluate(() => window.__copiedUrl);
 	assert(copiedPageUrl, 'The copy button did not write a URL');
+	const copiedEventUrl = new URL(copiedPageUrl);
 	assert.equal(
-		new URL(copiedPageUrl).searchParams.get('lang'),
-		'en',
-		'The copied URL did not preserve the active language'
+		copiedEventUrl.pathname,
+		'/holodori/event-pt/',
+		'The copied URL did not point to the Event Pt tool'
+	);
+	assert.equal(
+		copiedEventUrl.searchParams.toString(),
+		'lang=en',
+		'The copied tool URL included inputs or omitted the active language'
+	);
+	assert.equal(
+		new URL(page.url()).searchParams.get('current'),
+		'1144899',
+		'Sharing the tool changed the current page URL'
 	);
 
 	const searchLimitsOpen = await page.$eval(
@@ -232,7 +247,7 @@ try {
 	assert.match(singularText, /1 success/u);
 	assert.doesNotMatch(singularText, /1 (?:runs|successes|plans)/u);
 
-	await open('/holodori/high-low/?lang=en');
+	await open('/holodori/high-low/?lang=en&junk=1');
 	await waitForMainText('Choose five cards');
 	assert.deepEqual(
 		await page.$$eval('nav[aria-label="Breadcrumb"] a', (links) =>
@@ -268,6 +283,34 @@ try {
 		await mainText(),
 		/Keep 4/u,
 		'The English strategy heading remained after switching to Japanese'
+	);
+	await page.evaluate(() => {
+		Object.defineProperty(navigator, 'share', {
+			configurable: true,
+			value: async (data) => {
+				window.__sharedData = data;
+			}
+		});
+	});
+	await clickButtonText('このツールを共有');
+	const sharedData = await page.evaluate(() => window.__sharedData);
+	assert(sharedData, 'The Web Share API did not receive share data');
+	assert.equal(
+		sharedData.title,
+		'ホロドリ：ハイ&ロー手札判断',
+		'The shared title was not the current localized tool title'
+	);
+	assert.equal(
+		sharedData.text,
+		'カードオブグリードの5枚から、残すカードを計算します。',
+		'The share data included something other than the tool description'
+	);
+	const sharedHighLowUrl = new URL(sharedData.url);
+	assert.equal(sharedHighLowUrl.pathname, '/holodori/high-low/');
+	assert.equal(
+		sharedHighLowUrl.searchParams.toString(),
+		'lang=ja',
+		'The shared tool URL included unrelated query parameters'
 	);
 
 	await page.select('#site-language', 'en');

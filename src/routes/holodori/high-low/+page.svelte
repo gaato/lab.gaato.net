@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import AnalysisWorker from '$lib/high-low.worker?worker';
+	import ToolShare from '$lib/ToolShare.svelte';
 	import {
 		HAND_RANKS,
 		RANKS,
@@ -728,6 +729,13 @@
 			</a>
 		</div>
 	</details>
+
+	<ToolShare
+		activeLocale={$locale}
+		path="/holodori/high-low/"
+		title={translate($locale, 'highLow.heading')}
+		description={translate($locale, 'highLow.description')}
+	/>
 
 	<footer class="text-base-content/60 mt-6 text-center text-xs">
 		{translate($locale, 'holodori.unofficial')}

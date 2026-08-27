@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { afterNavigate, goto } from '$app/navigation';
+	import ToolShare from '$lib/ToolShare.svelte';
 	import {
 		MAX_JUMPS,
 		MAX_MAX_RUNS,
@@ -11,14 +12,7 @@
 		type SolveInput,
 		type SolveResult
 	} from '$lib/event-point';
-	import {
-		formatInteger,
-		isLocale,
-		locale,
-		translate,
-		type Locale,
-		type MessageKey
-	} from '$lib/i18n';
+	import { formatInteger, locale, translate, type MessageKey } from '$lib/i18n';
 
 	type FieldName = 'current' | 'target' | 'bonus' | 'maxJumps' | 'maxRuns';
 	type FieldErrors = Partial<Record<FieldName, MessageKey>>;
@@ -35,9 +29,6 @@
 	let queryNotice = false;
 	let result: SolveResult | null = null;
 	let calculatedInput: SolveInput | null = null;
-	let copyStatus: MessageKey | null = null;
-	let shareUrl = '';
-	let navigatedUrl = '';
 	let lastCalculationQueryKey: string | null = null;
 	let searchLimitsOpen = false;
 	let formElement: HTMLFormElement;
@@ -123,7 +114,6 @@
 	function invalidateCalculation(): void {
 		result = null;
 		calculatedInput = null;
-		copyStatus = null;
 		queryNotice = false;
 	}
 
@@ -237,9 +227,7 @@
 		});
 		if (passport) parameters.set('passport', '1');
 		const nextPath = `/holodori/event-pt/?${parameters.toString()}`;
-		const nextUrl = new URL(nextPath, window.location.origin);
 		lastCalculationQueryKey = calculationQueryKey(parameters);
-		navigatedUrl = nextUrl.toString();
 		solveFromParameters(parameters);
 		void goto(nextPath, { noScroll: true });
 	}
@@ -261,7 +249,6 @@
 		errors = {};
 		showErrorSummary = false;
 		queryNotice = false;
-		copyStatus = null;
 
 		const hasCalculationParameters = calculationParameterNames.some((name) =>
 			parameters.has(name)
@@ -354,44 +341,13 @@
 		}
 	}
 
-	function localizedShareUrl(url: URL, activeLocale: Locale): string {
-		const next = new URL(url);
-		next.searchParams.set('lang', activeLocale);
-		return next.toString();
-	}
-
-	async function copyCurrentUrl(): Promise<void> {
-		try {
-			await navigator.clipboard.writeText(
-				localizedShareUrl(new URL(window.location.href), $locale)
-			);
-			copyStatus = 'event.copied';
-		} catch {
-			copyStatus = 'event.copyFailed';
-		}
-	}
-
 	afterNavigate(({ to }) => {
 		if (!to) return;
-		navigatedUrl = to.url.toString();
 		const nextQueryKey = calculationQueryKey(to.url.searchParams);
 		if (nextQueryKey === lastCalculationQueryKey) return;
 		lastCalculationQueryKey = nextQueryKey;
 		solveFromParameters(to.url.searchParams);
 	});
-
-	$: {
-		if (!navigatedUrl) {
-			shareUrl = '';
-		} else {
-			const url = new URL(navigatedUrl);
-			const queryLocale = url.searchParams.get('lang');
-			shareUrl = localizedShareUrl(
-				url,
-				isLocale(queryLocale) ? queryLocale : $locale
-			);
-		}
-	}
 </script>
 
 <svelte:head>
@@ -809,15 +765,6 @@
 						</article>
 					{/each}
 				</div>
-
-				<button
-					class="btn btn-outline w-full"
-					type="button"
-					onclick={copyCurrentUrl}>{translate($locale, 'event.copyUrl')}</button
-				>
-				{#if copyStatus}<p class="text-base-content/70 text-sm" role="status">
-						{translate($locale, copyStatus)}
-					</p>{/if}
 			{/if}
 		</section>
 	</div>
@@ -855,6 +802,13 @@
 			</a>
 		</div>
 	</details>
+
+	<ToolShare
+		activeLocale={$locale}
+		path="/holodori/event-pt/"
+		title={translate($locale, 'event.heading')}
+		description={translate($locale, 'event.description')}
+	/>
 
 	<footer class="text-base-content/60 mt-6 text-center text-xs">
 		{translate($locale, 'holodori.unofficial')}

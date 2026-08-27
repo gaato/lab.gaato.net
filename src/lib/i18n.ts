@@ -12,6 +12,10 @@ const ja = {
 	'site.holodori': 'ホロドリ',
 	'site.breadcrumbs': 'パンくずリスト',
 	'site.language': '言語',
+	'site.shareTool': 'このツールを共有',
+	'site.shareCopied': 'URLをコピーしました。',
+	'site.shareFailed':
+		'URLを共有できませんでした。ブラウザのアドレス欄からコピーしてください。',
 	'language.ja': '日本語',
 	'language.en': 'English',
 	'home.title': 'gaato lab',
@@ -64,10 +68,6 @@ const ja = {
 	'event.actionRepeated': '{jumps}回成功を{count}回',
 	'event.actionReward': '1プレイ {points} Pt',
 	'event.planReward': '合計 {points} Pt',
-	'event.copyUrl': 'URLをコピー',
-	'event.copied': 'URLをコピーしました。',
-	'event.copyFailed':
-		'URLをコピーできませんでした。ブラウザのアドレス欄からコピーしてください。',
 	'event.queryIgnored':
 		'URL内の値が無効または不足しているため、計算には使用していません。入力内容を確認してください。',
 	'event.inferred': '公開実測表にない回数は式で推定しています。',
@@ -181,6 +181,10 @@ const en: Catalog = {
 	'site.holodori': 'hololive Dreams',
 	'site.breadcrumbs': 'Breadcrumb',
 	'site.language': 'Language',
+	'site.shareTool': 'Share this tool',
+	'site.shareCopied': 'URL copied.',
+	'site.shareFailed':
+		'The URL could not be shared. Copy it from your browser address bar.',
 	'language.ja': '日本語',
 	'language.en': 'English',
 	'home.title': 'gaato lab',
@@ -234,10 +238,6 @@ const en: Catalog = {
 	'event.actionRepeated': '{jumps} successes, {count} times',
 	'event.actionReward': '{points} Pt per run',
 	'event.planReward': '{points} Pt total',
-	'event.copyUrl': 'Copy URL',
-	'event.copied': 'URL copied.',
-	'event.copyFailed':
-		'The URL could not be copied. Copy it from your browser address bar.',
 	'event.queryIgnored':
 		'The URL contains invalid or missing values, so it was not calculated. Check the form values.',
 	'event.inferred':
