@@ -16,12 +16,12 @@ const ja = {
 	'home.description': 'gaato labのツール一覧。',
 	'home.collection': 'ツール',
 	'home.eventPointTitle': 'ホロドリ：イベントPt調整',
-	'event.title': 'イベントPt調整 | gaato lab',
+	'event.title': 'ホロドリ：イベントPt調整 | gaato lab',
 	'event.description':
 		'ホロライブ ドリームスのイベントPtを、ホッピンロープで目標値に合わせる手順を計算します。',
 	'event.unofficial':
 		'非公式のファンメイドツールです。カバー株式会社およびゲーム運営元とは関係ありません。',
-	'event.heading': 'イベントPt調整',
+	'event.heading': 'ホロドリ：イベントPt調整',
 	'event.summary':
 		'ホッピンロープの成功回数を組み合わせて、目標Ptに合わせます。イベントPtブースト使用時は未対応です。',
 	'event.formLegend': '条件',
@@ -38,7 +38,6 @@ const ja = {
 	'event.maxRunsLabel': '最大プレイ数',
 	'event.maxRunsHint': '1〜20プレイ。',
 	'event.calculate': '計算',
-	'event.example': '例を入力',
 	'event.resultHeading': '計算結果',
 	'event.emptyBody': '条件を入力して「計算」を押してください。',
 	'event.delta': 'あと {points} Pt',
@@ -116,12 +115,12 @@ const en: Catalog = {
 	'home.description': 'Tools on gaato lab.',
 	'home.collection': 'Tools',
 	'home.eventPointTitle': 'hololive Dreams: Event Pt calculator',
-	'event.title': 'Event Pt adjustment | gaato lab',
+	'event.title': 'hololive Dreams: Event Pt calculator | gaato lab',
 	'event.description':
 		'Calculate Hoppin Rope runs that reach an exact Event Pt target in hololive Dreams.',
 	'event.unofficial':
 		'This is an unofficial fan-made tool. It is not affiliated with COVER Corporation or the game operator.',
-	'event.heading': 'Event Pt calculator',
+	'event.heading': 'hololive Dreams: Event Pt calculator',
 	'event.summary':
 		'Combine Hoppin Rope success counts to reach the target Pt. Event Pt Boost is not supported.',
 	'event.formLegend': 'Inputs',
@@ -139,7 +138,6 @@ const en: Catalog = {
 	'event.maxRunsLabel': 'Maximum runs',
 	'event.maxRunsHint': '1–20 runs.',
 	'event.calculate': 'Calculate',
-	'event.example': 'Load example',
 	'event.resultHeading': 'Result',
 	'event.emptyBody': 'Enter the inputs, then select Calculate.',
 	'event.delta': '{points} Pt remaining',

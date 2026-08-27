@@ -244,18 +244,6 @@
 		void goto(nextPath, { noScroll: true });
 	}
 
-	function loadExample(): void {
-		current = '1,144,899';
-		target = '1,145,141';
-		bonus = '20';
-		passport = true;
-		maxJumps = '50';
-		maxRuns = '8';
-		errors = {};
-		showErrorSummary = false;
-		invalidateCalculation();
-	}
-
 	function solveFromParameters(parameters: URLSearchParams): void {
 		current = parameters.get('current') ?? '';
 		target = parameters.get('target') ?? '';
@@ -648,14 +636,9 @@
 					</div>
 				</details>
 
-				<div class="mt-5 grid gap-2 sm:grid-cols-[1fr_auto]">
-					<button class="btn btn-primary" type="submit"
-						>{translate($locale, 'event.calculate')}</button
-					>
-					<button class="btn" type="button" onclick={loadExample}
-						>{translate($locale, 'event.example')}</button
-					>
-				</div>
+				<button class="btn btn-primary mt-5 w-full" type="submit"
+					>{translate($locale, 'event.calculate')}</button
+				>
 			</div>
 		</form>
 

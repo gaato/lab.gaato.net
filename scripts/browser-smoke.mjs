@@ -66,6 +66,8 @@ try {
 		'/event-point/?current=1144899&target=1145141&bonus=20&passport=1&maxJumps=50&maxRuns=8&lang=ja'
 	);
 	await waitForMainText('あと 242 Pt');
+	assert.match(await mainText(), /ホロドリ：イベントPt調整/u);
+	assert.doesNotMatch(await mainText(), /例を入力/u);
 
 	const exactPlanText = await mainText();
 	assert.match(exactPlanText, /3回成功/u);

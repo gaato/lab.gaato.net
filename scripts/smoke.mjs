@@ -11,7 +11,7 @@ const checks = [
 		path: '/event-point/?current=1144899&target=1145141&bonus=20&passport=1&lang=ja',
 		status: 200,
 		expectedTexts: [
-			'イベントPt調整',
+			'ホロドリ：イベントPt調整',
 			'ホッピンロープ',
 			'イベントPtブースト使用時は未対応',
 			'カバー株式会社'
