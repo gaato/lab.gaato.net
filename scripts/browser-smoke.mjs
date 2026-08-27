@@ -192,13 +192,11 @@ try {
 	assert.match(singularText, /1 success/u);
 	assert.doesNotMatch(singularText, /1 (?:runs|successes|plans)/u);
 
+	// Verify the fallback itself remains useful even if the hosting platform adds
+	// unrelated scripts (for example, Cloudflare security instrumentation).
+	await page.setJavaScriptEnabled(false);
 	await open('/this-lab-route-does-not-exist/', 404);
 	assert.match(await mainText(), /Page not found/u);
-	assert.equal(
-		await page.$$eval('script', (elements) => elements.length),
-		0,
-		'The static 404 page unexpectedly requires JavaScript'
-	);
 	assert.deepEqual(
 		pageErrors,
 		[],
