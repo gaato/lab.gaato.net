@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy, onMount, tick } from 'svelte';
 	import AnalysisWorker from '$lib/high-low.worker?worker';
 	import ToolShare from '$lib/ToolShare.svelte';
 	import {
@@ -15,18 +15,19 @@
 		type Suit
 	} from '$lib/high-low';
 	import {
+		DAILY_HIGH_LOW_LEGACY_STORAGE_KEY,
 		DAILY_HIGH_LOW_LIMIT,
 		DAILY_HIGH_LOW_STORAGE_KEY,
 		DAILY_HIGH_LOW_TARGET,
 		DAILY_HIGH_LOW_UNIVERSAL_READY_MIN,
 		PAYING_HAND_RANKS,
-		calculateCashout,
+		calculateDailyEntryPayout,
 		calculateDailySubtotal,
 		createDailyHighLowProgress,
 		loadDailyHighLowProgress,
 		millisecondsUntilDailyHighLowReset,
 		recommendDailyCashout,
-		type DailyHighLowProgressV1,
+		type DailyHighLowProgressV2,
 		type DailyRouteRecommendation,
 		type PayingHandRank
 	} from '$lib/high-low-daily';
@@ -63,11 +64,9 @@
 	let analysisWorker: Worker | null = null;
 	let analysisTimer: ReturnType<typeof setTimeout> | null = null;
 	let requestSequence = 0;
-	let dailyProgress: DailyHighLowProgressV1 = createDailyHighLowProgress();
+	let dailyProgress: DailyHighLowProgressV2 = createDailyHighLowProgress();
 	let selectedDailyRank: PayingHandRank | null = null;
-	let selectedDailyDoubleUps = 0;
-	let openingSubtotalInput = '0';
-	let openingSubtotalError = false;
+	let selectedDailyDoubleUps: number | null = null;
 	let dailyStorageError = false;
 	let dailyResetArmed = false;
 	let dailyResetTimer: ReturnType<typeof setTimeout> | null = null;
@@ -87,10 +86,7 @@
 				)
 				.slice(0, 2)
 		: [];
-	$: dailySubtotal = calculateDailySubtotal(
-		dailyProgress.openingSubtotal,
-		dailyProgress.entries
-	);
+	$: dailySubtotal = calculateDailySubtotal(dailyProgress.entries);
 	$: dailyRecommendation = selectedDailyRank
 		? recommendDailyCashout(dailySubtotal, selectedDailyRank)
 		: null;
@@ -103,7 +99,7 @@
 		.map((entry, index) => ({
 			entry,
 			index,
-			payout: calculateCashout(entry.handRank, entry.successfulDoubleUps)
+			payout: calculateDailyEntryPayout(entry)
 		}))
 		.reverse();
 
@@ -440,29 +436,29 @@
 		}
 	}
 
-	function writeDailyProgress(progress: DailyHighLowProgressV1): void {
+	function writeDailyProgress(progress: DailyHighLowProgressV2): boolean {
 		try {
 			localStorage.setItem(
 				DAILY_HIGH_LOW_STORAGE_KEY,
 				JSON.stringify(progress)
 			);
 			dailyStorageError = false;
+			return true;
 		} catch {
 			dailyStorageError = true;
+			return false;
 		}
 	}
 
-	function replaceDailyProgress(progress: DailyHighLowProgressV1): void {
+	function replaceDailyProgress(progress: DailyHighLowProgressV2): void {
 		dailyProgress = progress;
-		openingSubtotalInput = String(progress.openingSubtotal);
-		openingSubtotalError = false;
 		dailyResetArmed = false;
 		writeDailyProgress(progress);
 	}
 
 	function clearDailySelection(): void {
 		selectedDailyRank = null;
-		selectedDailyDoubleUps = 0;
+		selectedDailyDoubleUps = null;
 	}
 
 	function resetDailyProgress(now: Date = new Date()): void {
@@ -481,19 +477,12 @@
 	function selectDailyRank(event: Event): void {
 		const value = (event.currentTarget as HTMLSelectElement).value;
 		selectedDailyRank = value ? (value as PayingHandRank) : null;
-		if (!selectedDailyRank) {
-			selectedDailyDoubleUps = 0;
-			return;
-		}
-		selectedDailyDoubleUps =
-			recommendDailyCashout(dailySubtotal, selectedDailyRank).recommended
-				?.successfulDoubleUps ?? 0;
+		selectedDailyDoubleUps = null;
 	}
 
 	function selectDailyDoubleUps(event: Event): void {
-		selectedDailyDoubleUps = Number(
-			(event.currentTarget as HTMLSelectElement).value
-		);
+		const value = (event.currentTarget as HTMLSelectElement).value;
+		selectedDailyDoubleUps = value === '' ? null : Number(value);
 	}
 
 	function recordDailyPayout(): void {
@@ -503,8 +492,9 @@
 			entries: [
 				...dailyProgress.entries,
 				{
+					kind: 'cashout',
 					handRank: selectedDailyRank,
-					successfulDoubleUps: selectedDailyDoubleUps
+					successfulDoubleUps: selectedDailyOption.successfulDoubleUps
 				}
 			]
 		});
@@ -520,15 +510,6 @@
 		});
 	}
 
-	function applyOpeningSubtotal(): void {
-		const value = Number(openingSubtotalInput);
-		if (!Number.isSafeInteger(value) || value < 0 || value % 100 !== 0) {
-			openingSubtotalError = true;
-			return;
-		}
-		replaceDailyProgress({ ...dailyProgress, openingSubtotal: value });
-	}
-
 	function handleDailyReset(): void {
 		if (!dailyResetArmed) {
 			dailyResetArmed = true;
@@ -537,15 +518,29 @@
 		resetDailyProgress();
 	}
 
+	async function startNextGame(): Promise<void> {
+		clearDailySelection();
+		clearAllCards();
+		await tick();
+		document.getElementById('high-low-card-slot-1')?.focus();
+	}
+
 	onMount(() => {
 		try {
 			const loaded = loadDailyHighLowProgress(
-				localStorage.getItem(DAILY_HIGH_LOW_STORAGE_KEY)
+				localStorage.getItem(DAILY_HIGH_LOW_STORAGE_KEY),
+				localStorage.getItem(DAILY_HIGH_LOW_LEGACY_STORAGE_KEY)
 			);
 			dailyProgress = loaded.progress;
-			openingSubtotalInput = String(loaded.progress.openingSubtotal);
-			if (loaded.status === 'new-day' || loaded.status === 'invalid') {
-				writeDailyProgress(loaded.progress);
+			if (
+				loaded.status === 'migrated' ||
+				loaded.status === 'new-day' ||
+				loaded.status === 'invalid'
+			) {
+				const saved = writeDailyProgress(loaded.progress);
+				if (saved && loaded.removeLegacyAfterSave) {
+					localStorage.removeItem(DAILY_HIGH_LOW_LEGACY_STORAGE_KEY);
+				}
 			}
 		} catch {
 			dailyStorageError = true;
@@ -601,252 +596,30 @@
 	</p>
 
 	<section
-		class="card bg-base-100 mt-6 shadow-sm"
-		aria-labelledby="daily-route-heading"
+		class="stats stats-vertical bg-base-100 sm:stats-horizontal mt-6 w-full shadow-sm"
+		aria-label={translate($locale, 'highLow.daily.statusLabel')}
 	>
-		<div class="card-body gap-5 p-5 sm:p-6">
-			<div>
-				<h2 id="daily-route-heading" class="card-title text-lg">
-					{translate($locale, 'highLow.daily.heading')}
-				</h2>
-				<p class="text-base-content/70 mt-1 text-sm">
-					{translate($locale, 'highLow.daily.summary')}
-				</p>
+		<div class="stat p-4">
+			<div class="stat-title">
+				{translate($locale, 'highLow.daily.received')}
 			</div>
-
-			<div class="stats stats-vertical bg-base-200 sm:stats-horizontal w-full">
-				<div class="stat p-4">
-					<div class="stat-title">
-						{translate($locale, 'highLow.daily.received')}
-					</div>
-					<div class="stat-value numeric text-2xl">
-						{translate($locale, 'highLow.coins', {
-							value: formatInteger($locale, dailySubtotal)
-						})}
-					</div>
-				</div>
-				<div class="stat p-4">
-					<div class="stat-title">
-						{translate($locale, 'highLow.daily.next')}
-					</div>
-					<div class="stat-desc mt-1 whitespace-normal">
-						{dailyStageText($locale, dailySubtotal)}
-					</div>
-				</div>
+			<div class="stat-value numeric text-2xl">
+				{translate($locale, 'highLow.daily.progress', {
+					value: formatInteger($locale, dailySubtotal),
+					target: formatInteger($locale, DAILY_HIGH_LOW_TARGET)
+				})}
 			</div>
-
-			<div
-				class={`alert ${dailySubtotal >= DAILY_HIGH_LOW_TARGET ? 'alert-success' : dailySubtotal >= DAILY_HIGH_LOW_LIMIT ? 'alert-warning' : 'alert-info'}`}
-				role="status"
-				aria-live="polite"
-			>
-				<span
-					>{dailyRecommendationText(
-						$locale,
-						dailyRecommendation,
-						dailySubtotal
-					)}</span
-				>
+		</div>
+		<div class="stat p-4">
+			<div class="stat-title">{translate($locale, 'highLow.daily.next')}</div>
+			<div class="stat-desc mt-1 whitespace-normal">
+				{dailyStageText($locale, dailySubtotal)}
 			</div>
-
-			<div
-				class="grid items-end gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
-			>
-				<fieldset class="fieldset gap-1 p-0">
-					<legend id="daily-hand-label" class="fieldset-legend p-0">
-						{translate($locale, 'highLow.daily.handLabel')}
-					</legend>
-					<select
-						id="daily-hand-rank"
-						class="select select-bordered w-full"
-						value={selectedDailyRank ?? ''}
-						aria-labelledby="daily-hand-label"
-						disabled={dailySubtotal >= DAILY_HIGH_LOW_LIMIT}
-						onchange={selectDailyRank}
-					>
-						<option value="">
-							{translate($locale, 'highLow.daily.handPlaceholder')}
-						</option>
-						{#each PAYING_HAND_RANKS as rank}
-							<option value={rank}>
-								{translate($locale, handRankMessageKey(rank))}
-							</option>
-						{/each}
-					</select>
-				</fieldset>
-
-				<fieldset class="fieldset gap-1 p-0">
-					<legend id="daily-double-ups-label" class="fieldset-legend p-0">
-						{translate($locale, 'highLow.daily.doubleUpsLabel')}
-					</legend>
-					<select
-						id="daily-double-ups"
-						class="select select-bordered w-full"
-						value={selectedDailyDoubleUps}
-						aria-labelledby="daily-double-ups-label"
-						disabled={!selectedDailyRank || dailyDoubleUpOptions.length === 0}
-						onchange={selectDailyDoubleUps}
-					>
-						{#if dailyDoubleUpOptions.length === 0}
-							<option value="0">—</option>
-						{:else}
-							{#each dailyDoubleUpOptions as option}
-								<option value={option.successfulDoubleUps}>
-									{translate($locale, 'highLow.daily.doubleUpsOption', {
-										count: option.successfulDoubleUps
-									})}{option.forced
-										? ` (${translate($locale, 'highLow.daily.forced')})`
-										: ''}
-								</option>
-							{/each}
-						{/if}
-					</select>
-				</fieldset>
-
-				<button
-					id="daily-add-payout"
-					class="btn btn-primary min-h-12"
-					type="button"
-					disabled={!selectedDailyRank || !selectedDailyOption}
-					onclick={recordDailyPayout}
-				>
-					{translate($locale, 'highLow.daily.record')}
-				</button>
+			<div class="stat-actions mt-2">
+				<a class="btn btn-ghost btn-sm" href="#daily-route-heading">
+					{translate($locale, 'highLow.daily.historyLink')}
+				</a>
 			</div>
-
-			{#if selectedDailyOption}
-				<p class="numeric font-semibold">
-					{translate($locale, 'highLow.daily.preview', {
-						payout: formatInteger($locale, selectedDailyOption.payout),
-						total: formatInteger($locale, selectedDailyOption.subtotalAfter)
-					})}
-				</p>
-				{#if selectedDailyOption.status === 'blocked-below-target'}
-					<div class="alert alert-warning py-3" role="alert">
-						<span>{translate($locale, 'highLow.daily.blockedWarning')}</span>
-					</div>
-				{/if}
-			{/if}
-
-			<p class="text-base-content/70 text-sm">
-				{translate($locale, 'highLow.daily.failedHint')}
-			</p>
-
-			<section aria-labelledby="daily-history-heading">
-				<div class="flex items-center justify-between gap-4">
-					<h3 id="daily-history-heading" class="font-semibold">
-						{translate($locale, 'highLow.daily.history')}
-					</h3>
-					<button
-						id="daily-reset"
-						class={`btn btn-sm ${dailyResetArmed ? 'btn-warning' : 'btn-ghost'}`}
-						type="button"
-						disabled={dailyProgress.openingSubtotal === 0 &&
-							dailyProgress.entries.length === 0}
-						onclick={handleDailyReset}
-					>
-						{translate(
-							$locale,
-							dailyResetArmed
-								? 'highLow.daily.resetConfirm'
-								: 'highLow.daily.reset'
-						)}
-					</button>
-				</div>
-
-				{#if dailyHistoryRows.length === 0}
-					<p class="text-base-content/70 mt-2 text-sm">
-						{translate($locale, 'highLow.daily.historyEmpty')}
-					</p>
-				{:else}
-					<ul class="list bg-base-200 rounded-box mt-2">
-						{#each dailyHistoryRows as row}
-							<li class="list-row items-center">
-								<div class="list-col-grow">
-									<div class="font-medium">
-										{translate($locale, 'highLow.daily.historyItem', {
-											hand: translate(
-												$locale,
-												handRankMessageKey(row.entry.handRank)
-											),
-											count: row.entry.successfulDoubleUps
-										})}
-									</div>
-									<div class="text-base-content/70 numeric text-sm">
-										{translate($locale, 'highLow.coins', {
-											value: formatInteger($locale, row.payout)
-										})}
-									</div>
-								</div>
-								<button
-									class="btn btn-ghost btn-sm"
-									type="button"
-									onclick={() => removeDailyPayout(row.index)}
-								>
-									{translate($locale, 'highLow.daily.remove')}
-								</button>
-							</li>
-						{/each}
-					</ul>
-				{/if}
-			</section>
-
-			<details class="collapse-arrow bg-base-200 collapse">
-				<summary class="collapse-title font-semibold">
-					{translate($locale, 'highLow.daily.openingHeading')}
-				</summary>
-				<div class="collapse-content">
-					<div class="grid items-end gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
-						<fieldset class="fieldset gap-1 p-0">
-							<legend
-								id="daily-opening-balance-label"
-								class="fieldset-legend p-0"
-							>
-								{translate($locale, 'highLow.daily.openingLabel')}
-							</legend>
-							<input
-								id="daily-opening-balance"
-								class={`input input-bordered w-full ${openingSubtotalError ? 'input-error' : ''}`}
-								type="number"
-								min="0"
-								step="100"
-								value={openingSubtotalInput}
-								aria-invalid={openingSubtotalError}
-								aria-labelledby="daily-opening-balance-label"
-								oninput={(event) => {
-									openingSubtotalInput = (
-										event.currentTarget as HTMLInputElement
-									).value;
-									openingSubtotalError = false;
-								}}
-							/>
-							<p class="label">
-								{openingSubtotalError
-									? translate($locale, 'highLow.daily.openingError')
-									: translate($locale, 'highLow.daily.openingHint')}
-							</p>
-						</fieldset>
-						<button
-							class="btn btn-outline"
-							type="button"
-							onclick={applyOpeningSubtotal}
-						>
-							{translate($locale, 'highLow.daily.openingApply')}
-						</button>
-					</div>
-				</div>
-			</details>
-
-			<div class="text-base-content/70 grid gap-1 text-xs">
-				<p>{translate($locale, 'highLow.daily.resetNote')}</p>
-				<p>{translate($locale, 'highLow.daily.methodNote')}</p>
-			</div>
-
-			{#if dailyStorageError}
-				<div class="alert alert-warning py-3" role="alert">
-					<span>{translate($locale, 'highLow.daily.storageError')}</span>
-				</div>
-			{/if}
 		</div>
 	</section>
 
@@ -861,6 +634,7 @@
 					<div class="grid grid-cols-5 gap-2">
 						{#each cards as card, index}
 							<button
+								id={index === 0 ? 'high-low-card-slot-1' : undefined}
 								class={`btn min-h-24 min-w-0 flex-col gap-1 px-1 ${selectedIndex === index ? 'btn-primary' : 'btn-outline'}`}
 								type="button"
 								aria-label={cardSlotLabel($locale, card, index)}
@@ -1086,6 +860,208 @@
 			</div>
 		</section>
 	</div>
+
+	<section
+		class="card bg-base-100 mt-6 shadow-sm"
+		aria-labelledby="daily-route-heading"
+	>
+		<div class="card-body gap-5 p-5 sm:p-6">
+			<div>
+				<h2 id="daily-route-heading" class="card-title text-lg">
+					{translate($locale, 'highLow.daily.heading')}
+				</h2>
+				<p class="text-base-content/70 mt-1 text-sm">
+					{translate($locale, 'highLow.daily.summary')}
+				</p>
+			</div>
+
+			<div
+				class={`alert ${dailySubtotal >= DAILY_HIGH_LOW_TARGET ? 'alert-success' : dailySubtotal >= DAILY_HIGH_LOW_LIMIT ? 'alert-warning' : 'alert-info'}`}
+				role="status"
+				aria-live="polite"
+			>
+				<span
+					>{dailyRecommendationText(
+						$locale,
+						dailyRecommendation,
+						dailySubtotal
+					)}</span
+				>
+			</div>
+
+			<div
+				class="grid items-end gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
+			>
+				<fieldset class="fieldset gap-1 p-0">
+					<legend id="daily-hand-label" class="fieldset-legend p-0">
+						{translate($locale, 'highLow.daily.handLabel')}
+					</legend>
+					<select
+						id="daily-hand-rank"
+						class="select w-full"
+						value={selectedDailyRank ?? ''}
+						aria-labelledby="daily-hand-label"
+						disabled={dailySubtotal >= DAILY_HIGH_LOW_LIMIT}
+						onchange={selectDailyRank}
+					>
+						<option value="">
+							{translate($locale, 'highLow.daily.handPlaceholder')}
+						</option>
+						{#each PAYING_HAND_RANKS as rank}
+							<option value={rank}>
+								{translate($locale, handRankMessageKey(rank))}
+							</option>
+						{/each}
+					</select>
+				</fieldset>
+
+				<fieldset class="fieldset gap-1 p-0">
+					<legend id="daily-double-ups-label" class="fieldset-legend p-0">
+						{translate($locale, 'highLow.daily.actualDoubleUpsLabel')}
+					</legend>
+					<select
+						id="daily-double-ups"
+						class="select w-full"
+						value={selectedDailyDoubleUps ?? ''}
+						aria-labelledby="daily-double-ups-label"
+						disabled={!selectedDailyRank || dailyDoubleUpOptions.length === 0}
+						onchange={selectDailyDoubleUps}
+					>
+						<option value="">
+							{translate($locale, 'highLow.daily.actualDoubleUpsPlaceholder')}
+						</option>
+						{#each dailyDoubleUpOptions as option}
+							<option value={option.successfulDoubleUps}>
+								{translate($locale, 'highLow.daily.doubleUpsOption', {
+									count: option.successfulDoubleUps
+								})}{option.successfulDoubleUps ===
+								dailyRecommendation?.recommended?.successfulDoubleUps
+									? ` (${translate($locale, 'highLow.daily.recommended')})`
+									: ''}{option.forced
+									? ` (${translate($locale, 'highLow.daily.forced')})`
+									: ''}
+							</option>
+						{/each}
+					</select>
+				</fieldset>
+
+				<button
+					id="daily-add-payout"
+					class="btn btn-primary min-h-12"
+					type="button"
+					disabled={!selectedDailyRank || !selectedDailyOption}
+					onclick={recordDailyPayout}
+				>
+					{translate($locale, 'highLow.daily.record')}
+				</button>
+			</div>
+
+			{#if selectedDailyOption}
+				<p class="numeric font-semibold">
+					{translate($locale, 'highLow.daily.preview', {
+						payout: formatInteger($locale, selectedDailyOption.payout),
+						total: formatInteger($locale, selectedDailyOption.subtotalAfter)
+					})}
+				</p>
+				{#if selectedDailyOption.status === 'blocked-below-target'}
+					<div class="alert alert-warning py-3" role="alert">
+						<span>{translate($locale, 'highLow.daily.blockedWarning')}</span>
+					</div>
+				{/if}
+			{/if}
+
+			<div
+				class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+			>
+				<p class="text-base-content/70 text-sm">
+					{translate($locale, 'highLow.daily.failedHint')}
+				</p>
+				<button
+					id="high-low-next-game"
+					class="btn btn-outline min-h-12"
+					type="button"
+					disabled={completedCardCount === 0}
+					onclick={startNextGame}
+				>
+					{translate($locale, 'highLow.daily.nextGame')}
+				</button>
+			</div>
+
+			<section aria-labelledby="daily-history-heading">
+				<div class="flex items-center justify-between gap-4">
+					<h3 id="daily-history-heading" class="font-semibold">
+						{translate($locale, 'highLow.daily.history')}
+					</h3>
+					<button
+						id="daily-reset"
+						class={`btn btn-sm ${dailyResetArmed ? 'btn-warning' : 'btn-ghost'}`}
+						type="button"
+						disabled={dailyProgress.entries.length === 0}
+						onclick={handleDailyReset}
+					>
+						{translate(
+							$locale,
+							dailyResetArmed
+								? 'highLow.daily.resetConfirm'
+								: 'highLow.daily.reset'
+						)}
+					</button>
+				</div>
+
+				{#if dailyHistoryRows.length === 0}
+					<p class="text-base-content/70 mt-2 text-sm">
+						{translate($locale, 'highLow.daily.historyEmpty')}
+					</p>
+				{:else}
+					<ul class="list bg-base-200 rounded-box mt-2">
+						{#each dailyHistoryRows as row}
+							<li class="list-row items-center">
+								<div class="list-col-grow">
+									<div class="font-medium">
+										{#if row.entry.kind === 'cashout'}
+											{translate($locale, 'highLow.daily.historyItem', {
+												hand: translate(
+													$locale,
+													handRankMessageKey(row.entry.handRank)
+												),
+												count: row.entry.successfulDoubleUps
+											})}
+										{:else}
+											{translate($locale, 'highLow.daily.importedHistoryItem')}
+										{/if}
+									</div>
+									<div class="text-base-content/70 numeric text-sm">
+										{translate($locale, 'highLow.coins', {
+											value: formatInteger($locale, row.payout)
+										})}
+									</div>
+								</div>
+								<button
+									class="btn btn-ghost btn-sm"
+									type="button"
+									onclick={() => removeDailyPayout(row.index)}
+								>
+									{translate($locale, 'highLow.daily.remove')}
+								</button>
+							</li>
+						{/each}
+					</ul>
+				{/if}
+			</section>
+
+			<div class="text-base-content/70 grid gap-1 text-xs">
+				<p>{translate($locale, 'highLow.daily.pastHint')}</p>
+				<p>{translate($locale, 'highLow.daily.resetNote')}</p>
+				<p>{translate($locale, 'highLow.daily.methodNote')}</p>
+			</div>
+
+			{#if dailyStorageError}
+				<div class="alert alert-warning py-3" role="alert">
+					<span>{translate($locale, 'highLow.daily.storageError')}</span>
+				</div>
+			{/if}
+		</div>
+	</section>
 
 	{#if analysis && primaryStrategy}
 		<details class="collapse-arrow bg-base-100 collapse mt-6 shadow-sm">

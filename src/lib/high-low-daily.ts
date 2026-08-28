@@ -17,19 +17,28 @@ export const DAILY_HIGH_LOW_TARGET = 30_000;
 export const DAILY_HIGH_LOW_UNIVERSAL_READY_MIN = 18_800;
 export const DAILY_HIGH_LOW_MAX_PREFINAL = 19_900;
 export const DAILY_HIGH_LOW_RESET_HOUR_JST = 5;
-export const DAILY_HIGH_LOW_STORAGE_KEY =
+export const DAILY_HIGH_LOW_LEGACY_STORAGE_KEY =
 	'lab.gaato.net.holodori.high-low.daily.v1';
+export const DAILY_HIGH_LOW_STORAGE_KEY =
+	'lab.gaato.net.holodori.high-low.daily.v2';
 
-export type DailyPayoutEntry = {
+export type DailyCashoutEntry = {
+	kind: 'cashout';
 	handRank: PayingHandRank;
 	successfulDoubleUps: number;
 };
 
-export type DailyHighLowProgressV1 = {
-	version: 1;
+export type ImportedBalanceEntry = {
+	kind: 'imported-balance';
+	payout: number;
+};
+
+export type DailyProgressEntry = DailyCashoutEntry | ImportedBalanceEntry;
+
+export type DailyHighLowProgressV2 = {
+	version: 2;
 	dayKey: string;
-	openingSubtotal: number;
-	entries: DailyPayoutEntry[];
+	entries: DailyProgressEntry[];
 };
 
 export type CashoutStatus =
@@ -55,8 +64,19 @@ export type DailyRouteRecommendation = {
 };
 
 export type DailyProgressLoadResult = {
-	progress: DailyHighLowProgressV1;
-	status: 'empty' | 'restored' | 'new-day' | 'invalid';
+	progress: DailyHighLowProgressV2;
+	status: 'empty' | 'restored' | 'migrated' | 'new-day' | 'invalid';
+	removeLegacyAfterSave: boolean;
+};
+
+type DailyHighLowProgressV1 = {
+	version: 1;
+	dayKey: string;
+	openingSubtotal: number;
+	entries: Array<{
+		handRank: PayingHandRank;
+		successfulDoubleUps: number;
+	}>;
 };
 
 const JST_OFFSET_MS = 9 * 60 * 60 * 1_000;
@@ -95,11 +115,10 @@ export function millisecondsUntilDailyHighLowReset(
 
 export function createDailyHighLowProgress(
 	now: Date = new Date()
-): DailyHighLowProgressV1 {
+): DailyHighLowProgressV2 {
 	return {
-		version: 1,
+		version: 2,
 		dayKey: getDailyHighLowDayKey(now),
-		openingSubtotal: 0,
 		entries: []
 	};
 }
@@ -121,15 +140,20 @@ export function calculateCashout(
 	return basePayout * 2 ** successfulDoubleUps;
 }
 
+export function calculateDailyEntryPayout(entry: DailyProgressEntry): number {
+	if (entry.kind === 'imported-balance') {
+		assertNonNegativeInteger(entry.payout, 'payout');
+		return entry.payout;
+	}
+	return calculateCashout(entry.handRank, entry.successfulDoubleUps);
+}
+
 export function calculateDailySubtotal(
-	openingSubtotal: number,
-	entries: readonly DailyPayoutEntry[]
+	entries: readonly DailyProgressEntry[]
 ): number {
-	assertNonNegativeInteger(openingSubtotal, 'openingSubtotal');
 	return entries.reduce(
-		(total, entry) =>
-			total + calculateCashout(entry.handRank, entry.successfulDoubleUps),
-		openingSubtotal
+		(total, entry) => total + calculateDailyEntryPayout(entry),
+		0
 	);
 }
 
@@ -239,7 +263,9 @@ export function recommendDailyCashout(
 	};
 }
 
-function isDailyPayoutEntry(value: unknown): value is DailyPayoutEntry {
+function isLegacyPayoutEntry(
+	value: unknown
+): value is DailyHighLowProgressV1['entries'][number] {
 	if (typeof value !== 'object' || value === null) return false;
 	const entry = value as Record<string, unknown>;
 	if (
@@ -257,7 +283,18 @@ function isDailyPayoutEntry(value: unknown): value is DailyPayoutEntry {
 	}
 }
 
-function isDailyProgress(value: unknown): value is DailyHighLowProgressV1 {
+function isDailyProgressEntry(value: unknown): value is DailyProgressEntry {
+	if (typeof value !== 'object' || value === null) return false;
+	const entry = value as Record<string, unknown>;
+	if (entry.kind === 'cashout') return isLegacyPayoutEntry(entry);
+	return (
+		entry.kind === 'imported-balance' &&
+		Number.isSafeInteger(entry.payout) &&
+		(entry.payout as number) >= 0
+	);
+}
+
+function isDailyProgressV1(value: unknown): value is DailyHighLowProgressV1 {
 	if (typeof value !== 'object' || value === null) return false;
 	const progress = value as Record<string, unknown>;
 	return (
@@ -268,36 +305,108 @@ function isDailyProgress(value: unknown): value is DailyHighLowProgressV1 {
 		(progress.openingSubtotal as number) >= 0 &&
 		Array.isArray(progress.entries) &&
 		progress.entries.length <= 1_000 &&
-		progress.entries.every(isDailyPayoutEntry)
+		progress.entries.every(isLegacyPayoutEntry)
 	);
+}
+
+function isDailyProgressV2(value: unknown): value is DailyHighLowProgressV2 {
+	if (typeof value !== 'object' || value === null) return false;
+	const progress = value as Record<string, unknown>;
+	return (
+		progress.version === 2 &&
+		typeof progress.dayKey === 'string' &&
+		DAY_KEY_PATTERN.test(progress.dayKey) &&
+		Array.isArray(progress.entries) &&
+		progress.entries.length <= 1_000 &&
+		progress.entries.every(isDailyProgressEntry)
+	);
+}
+
+function parseStoredProgress(serialized: string): unknown | null {
+	try {
+		return JSON.parse(serialized);
+	} catch {
+		return null;
+	}
 }
 
 export function loadDailyHighLowProgress(
 	serialized: string | null,
+	legacySerialized: string | null = null,
 	now: Date = new Date()
 ): DailyProgressLoadResult {
 	const empty = createDailyHighLowProgress(now);
-	if (serialized === null) return { progress: empty, status: 'empty' };
+	if (serialized !== null) {
+		const parsed = parseStoredProgress(serialized);
+		if (!isDailyProgressV2(parsed)) {
+			return {
+				progress: empty,
+				status: 'invalid',
+				removeLegacyAfterSave: false
+			};
+		}
+		if (parsed.dayKey !== empty.dayKey) {
+			return {
+				progress: empty,
+				status: 'new-day',
+				removeLegacyAfterSave: false
+			};
+		}
+		return {
+			progress: {
+				version: 2,
+				dayKey: parsed.dayKey,
+				entries: parsed.entries.map((entry) => ({ ...entry }))
+			},
+			status: 'restored',
+			removeLegacyAfterSave: false
+		};
+	}
 
-	let parsed: unknown;
-	try {
-		parsed = JSON.parse(serialized);
-	} catch {
-		return { progress: empty, status: 'invalid' };
+	if (legacySerialized === null) {
+		return {
+			progress: empty,
+			status: 'empty',
+			removeLegacyAfterSave: false
+		};
 	}
-	if (!isDailyProgress(parsed)) {
-		return { progress: empty, status: 'invalid' };
+	const legacy = parseStoredProgress(legacySerialized);
+	if (!isDailyProgressV1(legacy)) {
+		return {
+			progress: empty,
+			status: 'invalid',
+			removeLegacyAfterSave: true
+		};
 	}
-	if (parsed.dayKey !== empty.dayKey) {
-		return { progress: empty, status: 'new-day' };
+	if (legacy.dayKey !== empty.dayKey) {
+		return {
+			progress: empty,
+			status: 'new-day',
+			removeLegacyAfterSave: true
+		};
 	}
+
+	const entries: DailyProgressEntry[] = [
+		...(legacy.openingSubtotal > 0
+			? ([
+					{
+						kind: 'imported-balance',
+						payout: legacy.openingSubtotal
+					}
+				] satisfies ImportedBalanceEntry[])
+			: []),
+		...legacy.entries.map((entry): DailyCashoutEntry => ({
+			kind: 'cashout',
+			...entry
+		}))
+	];
 	return {
 		progress: {
-			version: 1,
-			dayKey: parsed.dayKey,
-			openingSubtotal: parsed.openingSubtotal,
-			entries: parsed.entries.map((entry) => ({ ...entry }))
+			version: 2,
+			dayKey: legacy.dayKey,
+			entries
 		},
-		status: 'restored'
+		status: 'migrated',
+		removeLegacyAfterSave: true
 	};
 }

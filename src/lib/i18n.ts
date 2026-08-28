@@ -148,17 +148,22 @@ const ja = {
 	'highLow.source': 'Ver.1.0.100更新内容',
 	'highLow.daily.heading': '今日の3万ルート',
 	'highLow.daily.summary':
-		'成立した役に応じて、3万コイン以上を狙う降りどころを案内します。',
+		'カードを交換した後、実際に成立した役を選んでください。',
+	'highLow.daily.statusLabel': '本日のHigh & Low進捗',
 	'highLow.daily.received': '本日の受取済み',
+	'highLow.daily.progress': '{value} / {target}コイン',
 	'highLow.daily.next': '次の目安',
+	'highLow.daily.historyLink': '履歴・過去分を入力',
 	'highLow.daily.building': 'まずは最終ゲーム前の小計を作ります',
 	'highLow.daily.ready': '次の有効役で3万を狙える範囲です',
 	'highLow.daily.reached': '3万コイン以上に到達しました',
 	'highLow.daily.closedBelow': '3万未満で本日のプレイ上限に達しました',
-	'highLow.daily.handLabel': '成立した役',
+	'highLow.daily.handLabel': '交換後に成立した役',
 	'highLow.daily.handPlaceholder': '役を選択',
-	'highLow.daily.doubleUpsLabel': '成功したダブルアップ回数',
+	'highLow.daily.actualDoubleUpsLabel': '実際に受け取った成功回数',
+	'highLow.daily.actualDoubleUpsPlaceholder': '払い戻し後に選択',
 	'highLow.daily.doubleUpsOption': '{count}回成功',
+	'highLow.daily.recommended': '目標',
 	'highLow.daily.forced': '強制終了',
 	'highLow.daily.recommendFinish':
 		'{count}回成功まで続けて{payout}コインを受け取ると、合計{total}コインで3万に到達します。',
@@ -171,20 +176,20 @@ const ja = {
 	'highLow.daily.blockedWarning':
 		'この受取額では3万未満のまま本日のプレイが終了します。',
 	'highLow.daily.record': 'この受取額を記録',
-	'highLow.daily.failedHint': '失敗して0コインだったゲームは記録不要です。',
+	'highLow.daily.failedHint':
+		'役なし・ワンペア・High & Low失敗は記録せず、次のゲームへ進めます。',
+	'highLow.daily.nextGame': '手札を消して次のゲームへ',
 	'highLow.daily.history': '本日の履歴',
 	'highLow.daily.historyEmpty': '受取履歴はまだありません。',
 	'highLow.daily.historyItem': '{hand}・{count}回成功',
+	'highLow.daily.importedHistoryItem': '旧版から移行した受取額',
 	'highLow.daily.remove': '取り消す',
-	'highLow.daily.openingHeading': '途中から使う',
-	'highLow.daily.openingLabel': '記録前の受取済みコイン',
-	'highLow.daily.openingHint': '100コイン単位で入力してください。',
-	'highLow.daily.openingApply': '反映',
-	'highLow.daily.openingError': '0以上の100コイン単位で入力してください。',
 	'highLow.daily.reset': '今日の記録を消す',
 	'highLow.daily.resetConfirm': 'もう一度押して消す',
 	'highLow.daily.storageError':
 		'ブラウザに記録を保存できませんでした。このページを閉じると失われます。',
+	'highLow.daily.pastHint':
+		'今日すでに受け取った分も、同じ役と実績回数の入力から追加できます。',
 	'highLow.daily.resetNote':
 		'記録は毎日5:00（日本時間）に自動で切り替わります。',
 	'highLow.daily.methodNote':
@@ -364,17 +369,23 @@ const en: Catalog = {
 	'highLow.source': 'Version 1.0.100 update notes',
 	'highLow.daily.heading': "Today's 30k route",
 	'highLow.daily.summary':
-		'Choose the hand you made to find a practical cashout point for reaching at least 30,000 coins.',
+		'After drawing replacements, choose the hand you actually made.',
+	'highLow.daily.statusLabel': "Today's High & Low progress",
 	'highLow.daily.received': 'Received today',
+	'highLow.daily.progress': '{value} / {target} coins',
 	'highLow.daily.next': 'Next step',
+	'highLow.daily.historyLink': 'History and earlier cashouts',
 	'highLow.daily.building': 'Build the subtotal before the final game',
 	'highLow.daily.ready': 'The next paying hand can reach 30k',
 	'highLow.daily.reached': 'Reached at least 30,000 coins',
 	'highLow.daily.closedBelow': 'The daily limit was reached below 30,000',
-	'highLow.daily.handLabel': 'Made hand',
+	'highLow.daily.handLabel': 'Hand made after the draw',
 	'highLow.daily.handPlaceholder': 'Choose a hand',
-	'highLow.daily.doubleUpsLabel': 'Successful double-ups',
+	'highLow.daily.actualDoubleUpsLabel':
+		'Actual successful double-ups cashed out',
+	'highLow.daily.actualDoubleUpsPlaceholder': 'Choose after cashing out',
 	'highLow.daily.doubleUpsOption': '{count} successful',
+	'highLow.daily.recommended': 'target',
 	'highLow.daily.forced': 'forced cashout',
 	'highLow.daily.recommendFinish':
 		'Continue through {count} successful double-ups and cash out {payout} coins to finish at {total} coins.',
@@ -388,20 +399,21 @@ const en: Catalog = {
 	'highLow.daily.blockedWarning':
 		'This cashout would end the day below 30,000 coins.',
 	'highLow.daily.record': 'Record this cashout',
-	'highLow.daily.failedHint': 'Do not record games that lost and paid 0 coins.',
+	'highLow.daily.failedHint':
+		'For no paying hand, One Pair, or a lost High & Low, record nothing and continue to the next game.',
+	'highLow.daily.nextGame': 'Clear the hand and start the next game',
 	'highLow.daily.history': "Today's history",
 	'highLow.daily.historyEmpty': 'No cashouts have been recorded yet.',
 	'highLow.daily.historyItem': '{hand} · {count} successful',
+	'highLow.daily.importedHistoryItem':
+		'Cashout imported from the previous version',
 	'highLow.daily.remove': 'Undo',
-	'highLow.daily.openingHeading': 'Start partway through the day',
-	'highLow.daily.openingLabel': 'Coins received before tracking',
-	'highLow.daily.openingHint': 'Enter a multiple of 100 coins.',
-	'highLow.daily.openingApply': 'Apply',
-	'highLow.daily.openingError': 'Enter a non-negative multiple of 100 coins.',
 	'highLow.daily.reset': "Clear today's record",
 	'highLow.daily.resetConfirm': 'Press again to clear',
 	'highLow.daily.storageError':
 		'This browser could not save the record. It will be lost when this page closes.',
+	'highLow.daily.pastHint':
+		'Cashouts received earlier today can be added with the same hand and actual-result fields.',
 	'highLow.daily.resetNote': 'The record resets every day at 05:00 JST.',
 	'highLow.daily.methodNote':
 		'This is a practical route from the hand already made, not a whole-day probability optimum.',

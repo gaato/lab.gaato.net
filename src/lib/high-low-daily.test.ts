@@ -4,6 +4,7 @@ import {
 	DAILY_HIGH_LOW_LIMIT,
 	PAYING_HAND_RANKS,
 	calculateCashout,
+	calculateDailyEntryPayout,
 	calculateDailySubtotal,
 	createDailyHighLowProgress,
 	enumerateCashoutOptions,
@@ -11,7 +12,7 @@ import {
 	loadDailyHighLowProgress,
 	millisecondsUntilDailyHighLowReset,
 	recommendDailyCashout,
-	type DailyHighLowProgressV1
+	type DailyHighLowProgressV2
 } from './high-low-daily';
 
 describe('daily High & Low payouts', () => {
@@ -32,13 +33,25 @@ describe('daily High & Low payouts', () => {
 		]);
 	});
 
-	it('adds an opening subtotal and recorded payouts', () => {
+	it('adds recorded and imported payouts', () => {
 		expect(
-			calculateDailySubtotal(700, [
-				{ handRank: 'two-pair', successfulDoubleUps: 6 },
-				{ handRank: 'three-of-a-kind', successfulDoubleUps: 5 }
+			calculateDailySubtotal([
+				{ kind: 'imported-balance', payout: 700 },
+				{
+					kind: 'cashout',
+					handRank: 'two-pair',
+					successfulDoubleUps: 6
+				},
+				{
+					kind: 'cashout',
+					handRank: 'three-of-a-kind',
+					successfulDoubleUps: 5
+				}
 			])
 		).toBe(19_900);
+		expect(
+			calculateDailyEntryPayout({ kind: 'imported-balance', payout: 12_800 })
+		).toBe(12_800);
 	});
 });
 
@@ -129,36 +142,89 @@ describe('05:00 JST persistence boundary', () => {
 	});
 
 	it('restores current data and resets data from the previous game day', () => {
-		const current: DailyHighLowProgressV1 = {
-			version: 1,
+		const current: DailyHighLowProgressV2 = {
+			version: 2,
 			dayKey: '2026-08-28',
-			openingSubtotal: 12_800,
-			entries: [{ handRank: 'flush', successfulDoubleUps: 0 }]
+			entries: [{ kind: 'cashout', handRank: 'flush', successfulDoubleUps: 0 }]
 		};
 		expect(
-			loadDailyHighLowProgress(JSON.stringify(current), beforeReset)
+			loadDailyHighLowProgress(JSON.stringify(current), null, beforeReset)
 		).toMatchObject({
 			status: 'restored',
-			progress: current
+			progress: current,
+			removeLegacyAfterSave: false
 		});
 		expect(
-			loadDailyHighLowProgress(JSON.stringify(current), atReset)
+			loadDailyHighLowProgress(JSON.stringify(current), null, atReset)
 		).toMatchObject({
 			status: 'new-day',
 			progress: createDailyHighLowProgress(atReset)
 		});
 	});
 
-	it('discards malformed or unsupported stored state', () => {
-		expect(loadDailyHighLowProgress('{', beforeReset).status).toBe('invalid');
+	it('migrates a same-day V1 balance without inventing a hand', () => {
+		const legacy = JSON.stringify({
+			version: 1,
+			dayKey: '2026-08-28',
+			openingSubtotal: 12_800,
+			entries: [{ handRank: 'flush', successfulDoubleUps: 0 }]
+		});
+		expect(loadDailyHighLowProgress(null, legacy, beforeReset)).toEqual({
+			status: 'migrated',
+			removeLegacyAfterSave: true,
+			progress: {
+				version: 2,
+				dayKey: '2026-08-28',
+				entries: [
+					{ kind: 'imported-balance', payout: 12_800 },
+					{
+						kind: 'cashout',
+						handRank: 'flush',
+						successfulDoubleUps: 0
+					}
+				]
+			}
+		});
+	});
+
+	it('does not create an imported entry for a zero V1 balance', () => {
+		const legacy = JSON.stringify({
+			version: 1,
+			dayKey: '2026-08-28',
+			openingSubtotal: 0,
+			entries: [{ handRank: 'two-pair', successfulDoubleUps: 1 }]
+		});
+		expect(
+			loadDailyHighLowProgress(null, legacy, beforeReset).progress.entries
+		).toEqual([
+			{
+				kind: 'cashout',
+				handRank: 'two-pair',
+				successfulDoubleUps: 1
+			}
+		]);
+	});
+
+	it('discards malformed state without reviving stale V1 data', () => {
+		const legacy = JSON.stringify({
+			version: 1,
+			dayKey: '2026-08-28',
+			openingSubtotal: 12_800,
+			entries: []
+		});
+		expect(loadDailyHighLowProgress('{', legacy, beforeReset)).toMatchObject({
+			status: 'invalid',
+			removeLegacyAfterSave: false,
+			progress: createDailyHighLowProgress(beforeReset)
+		});
 		expect(
 			loadDailyHighLowProgress(
 				JSON.stringify({
-					version: 2,
+					version: 3,
 					dayKey: '2026-08-28',
-					openingSubtotal: 0,
 					entries: []
 				}),
+				null,
 				beforeReset
 			).status
 		).toBe('invalid');

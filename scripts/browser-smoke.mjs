@@ -250,6 +250,17 @@ try {
 	await open('/holodori/high-low/?lang=en&junk=1');
 	await waitForMainText('Choose five cards');
 	await waitForMainText("Today's 30k route");
+	assert(
+		await page.$eval('#high-low-card-slot-1', (cardSlot) => {
+			const route = document.querySelector('#daily-route-heading');
+			return Boolean(
+				route &&
+				cardSlot.compareDocumentPosition(route) &
+					Node.DOCUMENT_POSITION_FOLLOWING
+			);
+		}),
+		'The post-draw route appeared before the initial hand input'
+	);
 	assert.deepEqual(
 		await page.$$eval('nav[aria-label="Breadcrumb"] a', (links) =>
 			links.map((link) => link.textContent?.trim())
@@ -257,45 +268,6 @@ try {
 		['All tools', 'hololive Dreams'],
 		'High & Low breadcrumb hierarchy is incomplete'
 	);
-
-	await page.select('#daily-hand-rank', 'two-pair');
-	await waitForMainText('Cash out 12,800 coins after 6 successful double-ups');
-	assert.equal(
-		await page.$eval(
-			'#daily-double-ups',
-			(element) => /** @type {HTMLSelectElement} */ (element).value
-		),
-		'6',
-		'The first standard cashout did not default to 12,800'
-	);
-	await page.click('#daily-add-payout');
-	await waitForMainText('Received today 12,800 coins');
-
-	await page.select('#daily-hand-rank', 'three-of-a-kind');
-	await waitForMainText('The 19,200-coin subtotal is ready');
-	assert.equal(
-		await page.$eval(
-			'#daily-double-ups',
-			(element) => /** @type {HTMLSelectElement} */ (element).value
-		),
-		'5',
-		'The second standard cashout did not default to 6,400'
-	);
-	await page.click('#daily-add-payout');
-	await waitForMainText('19,200 coins');
-
-	await open('/holodori/high-low/?lang=en&junk=2');
-	await waitForMainText('19,200 coins');
-	const openingDetails = await page.$('#daily-opening-balance');
-	assert(openingDetails, 'The partway-through-day input is missing');
-	await page.$eval('#daily-opening-balance', (element) =>
-		element.closest('details')?.setAttribute('open', '')
-	);
-	await setValue('#daily-opening-balance', '700');
-	await clickButtonText('Apply');
-	await waitForMainText('19,900 coins');
-	await open('/holodori/high-low/?lang=en&junk=3');
-	await waitForMainText('19,900 coins');
 
 	for (const [rank, suit] of [
 		['10', 'Spades'],
@@ -311,6 +283,47 @@ try {
 	const highLowResultText = await mainText();
 	assert.match(highLowResultText, /Expected total payout/u);
 	assert.match(highLowResultText, /Winning-hand rate/u);
+
+	await page.select('#daily-hand-rank', 'two-pair');
+	await waitForMainText('Cash out 12,800 coins after 6 successful double-ups');
+	assert.equal(
+		await page.$eval(
+			'#daily-double-ups',
+			(element) => /** @type {HTMLSelectElement} */ (element).value
+		),
+		'',
+		'The actual cashout count was filled before the game result was known'
+	);
+	await page.select('#daily-double-ups', '6');
+	await page.click('#daily-add-payout');
+	await waitForMainText('12,800 / 30,000 coins');
+	assert.match(
+		await page.$eval(
+			'#high-low-card-slot-1',
+			(element) => element.textContent ?? ''
+		),
+		/10/u,
+		'Recording a cashout unexpectedly cleared the initial hand'
+	);
+
+	await page.select('#daily-hand-rank', 'three-of-a-kind');
+	await waitForMainText('The 19,200-coin subtotal is ready');
+	assert.equal(
+		await page.$eval(
+			'#daily-double-ups',
+			(element) => /** @type {HTMLSelectElement} */ (element).value
+		),
+		'',
+		'The second actual cashout count was filled before the result'
+	);
+	await page.select('#daily-double-ups', '5');
+	await page.click('#daily-add-payout');
+	await waitForMainText('19,200 / 30,000 coins');
+
+	await page.select('#daily-hand-rank', 'flush');
+	await page.select('#daily-double-ups', '0');
+	await page.click('#daily-add-payout');
+	await waitForMainText('19,900 / 30,000 coins');
 
 	await page.select('#site-language', 'ja');
 	await page.waitForFunction(
@@ -370,7 +383,22 @@ try {
 	await clickButtonText('J');
 	await waitForMainText('That card is already in your hand');
 
-	await clickButtonText('Clear all');
+	await page.click('#high-low-next-game');
+	await page.waitForFunction(
+		() => document.activeElement?.id === 'high-low-card-slot-1'
+	);
+	assert.match(
+		await page.$eval(
+			'#high-low-card-slot-1',
+			(element) => element.textContent ?? ''
+		),
+		/Not selected/u,
+		'The explicit next-game action did not clear the hand'
+	);
+	await waitForMainText('19,900 / 30,000 coins');
+
+	await open('/holodori/high-low/?lang=en&junk=3');
+	await waitForMainText('19,900 / 30,000 coins');
 	await waitForMainText('Choose five cards');
 	await clickButtonText('JOKER');
 	assert.match(
