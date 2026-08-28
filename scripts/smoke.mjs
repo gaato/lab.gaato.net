@@ -35,6 +35,7 @@ const checks = [
 		status: 200,
 		expectedTexts: [
 			'hololive Dreams: High &amp; Low hand advisor',
+			"Today's 30k route",
 			'Card of Greed',
 			'COVER Corporation'
 		]

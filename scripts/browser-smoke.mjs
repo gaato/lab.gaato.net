@@ -249,6 +249,7 @@ try {
 
 	await open('/holodori/high-low/?lang=en&junk=1');
 	await waitForMainText('Choose five cards');
+	await waitForMainText("Today's 30k route");
 	assert.deepEqual(
 		await page.$$eval('nav[aria-label="Breadcrumb"] a', (links) =>
 			links.map((link) => link.textContent?.trim())
@@ -256,6 +257,45 @@ try {
 		['All tools', 'hololive Dreams'],
 		'High & Low breadcrumb hierarchy is incomplete'
 	);
+
+	await page.select('#daily-hand-rank', 'two-pair');
+	await waitForMainText('Cash out 12,800 coins after 6 successful double-ups');
+	assert.equal(
+		await page.$eval(
+			'#daily-double-ups',
+			(element) => /** @type {HTMLSelectElement} */ (element).value
+		),
+		'6',
+		'The first standard cashout did not default to 12,800'
+	);
+	await page.click('#daily-add-payout');
+	await waitForMainText('Received today 12,800 coins');
+
+	await page.select('#daily-hand-rank', 'three-of-a-kind');
+	await waitForMainText('The 19,200-coin subtotal is ready');
+	assert.equal(
+		await page.$eval(
+			'#daily-double-ups',
+			(element) => /** @type {HTMLSelectElement} */ (element).value
+		),
+		'5',
+		'The second standard cashout did not default to 6,400'
+	);
+	await page.click('#daily-add-payout');
+	await waitForMainText('19,200 coins');
+
+	await open('/holodori/high-low/?lang=en&junk=2');
+	await waitForMainText('19,200 coins');
+	const openingDetails = await page.$('#daily-opening-balance');
+	assert(openingDetails, 'The partway-through-day input is missing');
+	await page.$eval('#daily-opening-balance', (element) =>
+		element.closest('details')?.setAttribute('open', '')
+	);
+	await setValue('#daily-opening-balance', '700');
+	await clickButtonText('Apply');
+	await waitForMainText('19,900 coins');
+	await open('/holodori/high-low/?lang=en&junk=3');
+	await waitForMainText('19,900 coins');
 
 	for (const [rank, suit] of [
 		['10', 'Spades'],
