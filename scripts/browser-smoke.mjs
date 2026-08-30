@@ -14,8 +14,33 @@ const browser = await puppeteer.launch({
 const page = await browser.newPage();
 await page.setCacheEnabled(false);
 page.setDefaultTimeout(15_000);
-const pageErrors = [];
-page.on('pageerror', (error) => pageErrors.push(error.message));
+const browserProblems = [];
+let loadingExpectedNotFound = false;
+page.on('console', (message) => {
+	const text = message.text();
+	if (
+		message.type() === 'error' &&
+		!(
+			loadingExpectedNotFound &&
+			text.includes(
+				'Failed to load resource: the server responded with a status of 404'
+			)
+		)
+	) {
+		browserProblems.push(`console: ${text}`);
+	}
+	if (message.type() === 'warn' && /hydration|svelte/iu.test(text)) {
+		browserProblems.push(`console warning: ${text}`);
+	}
+});
+page.on('pageerror', (error) =>
+	browserProblems.push(`page error: ${error.message}`)
+);
+page.on('requestfailed', (request) => {
+	browserProblems.push(
+		`request failed: ${request.method()} ${request.url()} (${request.failure()?.errorText ?? 'unknown error'})`
+	);
+});
 
 async function open(path, expectedStatus = 200) {
 	const response = await page.goto(new URL(path, baseUrl).toString(), {
@@ -560,7 +585,9 @@ try {
 	// Verify the fallback itself remains useful even if the hosting platform adds
 	// unrelated scripts (for example, Cloudflare security instrumentation).
 	await page.setJavaScriptEnabled(false);
+	loadingExpectedNotFound = true;
 	await open('/this-lab-route-does-not-exist/', 404);
+	loadingExpectedNotFound = false;
 	assert.equal(
 		await page.$eval('html', (element) => element.lang),
 		'en',
@@ -568,9 +595,9 @@ try {
 	);
 	assert.match(await mainText(), /Page not found/u);
 	assert.deepEqual(
-		pageErrors,
+		browserProblems,
 		[],
-		`Browser page errors: ${pageErrors.join('; ')}`
+		`Browser problems: ${browserProblems.join('; ')}`
 	);
 
 	console.log('browser smoke passed');

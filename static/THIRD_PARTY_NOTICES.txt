@@ -56,6 +56,8 @@ SOFTWARE.
 Tailwind CSS
 https://github.com/tailwindlabs/tailwindcss
 
+MIT License
+
 Copyright (c) Tailwind Labs, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -79,6 +81,8 @@ SOFTWARE.
 ===============================================================================
 daisyUI
 https://github.com/saadeghi/daisyui
+
+MIT License
 
 Copyright (c) 2020 Pouya Saadeghi
 
