@@ -12,6 +12,10 @@ const ja = {
 	'site.holodori': 'ホロドリ',
 	'site.breadcrumbs': 'パンくずリスト',
 	'site.language': '言語',
+	'site.footerLinks': 'プロジェクト情報',
+	'site.source': 'ソースコード',
+	'site.license': 'ライセンス',
+	'site.thirdPartyNotices': '第三者ライセンス',
 	'site.shareTool': 'このツールを共有',
 	'site.shareCopied': 'URLをコピーしました。',
 	'site.shareFailed':
@@ -170,8 +174,6 @@ const ja = {
 		'おすすめは、High & Lowで降りるタイミングまで最適化した期待払い戻し順です。',
 	'highLow.methodLimit':
 		'10,000コインからもう1回挑戦でき、10,000超で終了する条件は含みます。1日20,000コイン上限は含みません。',
-	'highLow.methodVersion': 'Ver.1.0.100の配当を使用しています。',
-	'highLow.source': 'Ver.1.0.100更新内容',
 	'highLow.daily.heading': '今日の3万ルート',
 	'highLow.daily.summary':
 		'カードを交換した後、実際に成立した役を選んでください。',
@@ -255,6 +257,10 @@ const en: Catalog = {
 	'site.holodori': 'hololive Dreams',
 	'site.breadcrumbs': 'Breadcrumb',
 	'site.language': 'Language',
+	'site.footerLinks': 'Project information',
+	'site.source': 'Source',
+	'site.license': 'License',
+	'site.thirdPartyNotices': 'Third-party notices',
 	'site.shareTool': 'Share this tool',
 	'site.shareCopied': 'URL copied.',
 	'site.shareFailed':
@@ -416,8 +422,6 @@ const en: Catalog = {
 		'Recommendations are ranked by expected payout with an optimal stopping strategy for High & Low.',
 	'highLow.methodLimit':
 		'The calculation allows one more round at 10,000 coins and stops above 10,000. The 20,000-coin daily limit is not included.',
-	'highLow.methodVersion': 'Uses the payout table from version 1.0.100.',
-	'highLow.source': 'Version 1.0.100 update notes',
 	'highLow.daily.heading': "Today's 30k route",
 	'highLow.daily.summary':
 		'After drawing replacements, choose the hand you actually made.',

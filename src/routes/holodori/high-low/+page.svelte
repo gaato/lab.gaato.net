@@ -1161,16 +1161,7 @@
 				<p>{translate($locale, 'highLow.methodIntro')}</p>
 				<p>{translate($locale, 'highLow.methodHighLow')}</p>
 				<p>{translate($locale, 'highLow.methodLimit')}</p>
-				<p>{translate($locale, 'highLow.methodVersion')}</p>
 			</div>
-			<a
-				class="link link-primary mt-4 inline-block"
-				href="https://store.steampowered.com/news/app/4282500/view/683009119697764518"
-				target="_blank"
-				rel="noreferrer"
-			>
-				{translate($locale, 'highLow.source')}
-			</a>
 		</div>
 	</details>
 

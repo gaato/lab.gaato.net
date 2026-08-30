@@ -96,4 +96,26 @@
 	<main class="flex-1">
 		{@render children()}
 	</main>
+
+	<footer
+		class="footer footer-center border-base-300 border-t px-4 py-5 text-sm"
+	>
+		<nav
+			class="flex flex-wrap justify-center gap-x-4 gap-y-2"
+			aria-label={translate($locale, 'site.footerLinks')}
+		>
+			<a class="link link-hover" href="https://github.com/gaato/lab.gaato.net">
+				{translate($locale, 'site.source')}
+			</a>
+			<a
+				class="link link-hover"
+				href="https://github.com/gaato/lab.gaato.net/blob/main/LICENSE"
+			>
+				{translate($locale, 'site.license')}
+			</a>
+			<a class="link link-hover" href="/THIRD_PARTY_NOTICES.txt">
+				{translate($locale, 'site.thirdPartyNotices')}
+			</a>
+		</nav>
+	</footer>
 </div>

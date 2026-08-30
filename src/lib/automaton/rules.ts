@@ -73,7 +73,6 @@ function seededUnit(seed: number): number {
 	return (seed % 97) / 96;
 }
 
-/** Port of the palette relation from the original MoonBit implementation. */
 export function paletteForMasks(
 	birthMask: number,
 	surviveMask: number
@@ -128,7 +127,6 @@ function defineRule(
 	});
 }
 
-/** The curated order, rules and densities from `src/background/rules.mbt`. */
 export const AUTOMATON_RULES: readonly AutomatonRule[] = Object.freeze([
 	defineRule('conway', "Conway's Life", [3], [2, 3], 180),
 	defineRule('highlife', 'HighLife', [3, 6], [2, 3], 140),

@@ -87,6 +87,14 @@ try {
 	await open('/cellular-automaton/?lang=en');
 	await waitForMainText('Life-like B/S notation');
 	assert.deepEqual(
+		await page.$$eval(
+			'footer nav[aria-label="Project information"] a',
+			(links) => links.map((link) => link.textContent?.trim())
+		),
+		['Source', 'License', 'Third-party notices'],
+		'Project links are missing from the shared footer'
+	);
+	assert.deepEqual(
 		await page.$$eval('nav[aria-label="Breadcrumb"] a', (links) =>
 			links.map((link) => link.textContent?.trim())
 		),
