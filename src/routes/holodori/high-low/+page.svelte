@@ -561,7 +561,7 @@
 		content={translate($locale, 'highLow.description')}
 	/>
 	<meta property="og:type" content="website" />
-	<meta property="og:site_name" content="gaato lab" />
+	<meta property="og:site_name" content="lab.gaato.net" />
 	<meta property="og:title" content={translate($locale, 'highLow.title')} />
 	<meta
 		property="og:description"

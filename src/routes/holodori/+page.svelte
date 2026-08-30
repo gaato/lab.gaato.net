@@ -9,7 +9,7 @@
 		content={translate($locale, 'holodori.description')}
 	/>
 	<meta property="og:type" content="website" />
-	<meta property="og:site_name" content="gaato lab" />
+	<meta property="og:site_name" content="lab.gaato.net" />
 	<meta property="og:title" content={translate($locale, 'holodori.title')} />
 	<meta
 		property="og:description"

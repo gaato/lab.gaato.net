@@ -354,7 +354,7 @@
 	<title>{translate($locale, 'event.title')}</title>
 	<meta name="description" content={translate($locale, 'event.description')} />
 	<meta property="og:type" content="website" />
-	<meta property="og:site_name" content="gaato lab" />
+	<meta property="og:site_name" content="lab.gaato.net" />
 	<meta property="og:title" content={translate($locale, 'event.title')} />
 	<meta
 		property="og:description"

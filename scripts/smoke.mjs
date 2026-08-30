@@ -5,11 +5,21 @@ const checks = [
 		path: '/',
 		status: 200,
 		expectedTexts: [
-			'gaato lab',
+			'lab.gaato.net',
+			'Cellular Automaton',
 			'hololive Dreams: Event Pt calculator',
 			'hololive Dreams: High &amp; Low hand advisor'
 		],
 		unexpectedTexts: ['カバー株式会社']
+	},
+	{
+		path: '/cellular-automaton/',
+		status: 200,
+		expectedTexts: [
+			'Cellular Automaton',
+			'Life-like B/S notation',
+			'Step one generation'
+		]
 	},
 	{
 		path: '/holodori/',

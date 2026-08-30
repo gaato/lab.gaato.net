@@ -12,6 +12,7 @@ const browser = await puppeteer.launch({
 });
 
 const page = await browser.newPage();
+await page.setCacheEnabled(false);
 page.setDefaultTimeout(15_000);
 const pageErrors = [];
 page.on('pageerror', (error) => pageErrors.push(error.message));
@@ -30,14 +31,19 @@ async function open(path, expectedStatus = 200) {
 }
 
 async function mainText() {
-	return page.$eval('main', (element) => element.textContent ?? '');
+	return page.$eval('main', (element) =>
+		(element.textContent ?? '').replace(/\s+/gu, ' ').trim()
+	);
 }
 
 async function waitForMainText(fragment) {
 	try {
 		await page.waitForFunction(
 			(expected) =>
-				document.querySelector('main')?.textContent?.includes(expected),
+				(document.querySelector('main')?.textContent ?? '')
+					.replace(/\s+/gu, ' ')
+					.trim()
+					.includes(expected),
 			{},
 			fragment
 		);
@@ -78,6 +84,138 @@ async function clickButtonText(label) {
 }
 
 try {
+	await open('/cellular-automaton/?lang=en');
+	await waitForMainText('Life-like B/S notation');
+	assert.deepEqual(
+		await page.$$eval('nav[aria-label="Breadcrumb"] a', (links) =>
+			links.map((link) => link.textContent?.trim())
+		),
+		['All tools'],
+		'Cellular Automaton breadcrumb hierarchy is incomplete'
+	);
+	await page.waitForFunction(() => {
+		const canvas = document.querySelector('.automaton-canvas canvas');
+		if (
+			!(canvas instanceof HTMLCanvasElement) ||
+			canvas.width === 0 ||
+			canvas.height === 0
+		) {
+			return false;
+		}
+		const context = canvas.getContext('2d');
+		if (!context) return false;
+		return context
+			.getImageData(0, 0, canvas.width, canvas.height)
+			.data.some((value, index) => index % 4 === 3 && value !== 0);
+	});
+
+	await setValue('#automaton-rule', 'b82 / s755');
+	await page.click('button[type="submit"]');
+	await waitForMainText('Custom B28/S57');
+	assert.equal(
+		await page.$eval(
+			'#automaton-rule',
+			(element) => /** @type {HTMLInputElement} */ (element).value
+		),
+		'B28/S57'
+	);
+	await clickButtonText('Pause');
+	assert.equal(
+		await page.$eval('#automaton-rule', (element) => element.ariaInvalid),
+		'false'
+	);
+	assert.equal(
+		await page.$eval('[data-testid="automaton-toggle"]', (element) =>
+			element.getAttribute('aria-pressed')
+		),
+		'true'
+	);
+
+	await page.select('#site-language', 'ja');
+	await page.waitForFunction(
+		() =>
+			document.documentElement.lang === 'ja' &&
+			new URL(window.location.href).searchParams.get('lang') === 'ja'
+	);
+	await waitForMainText('カスタム B28/S57');
+	assert.equal(
+		await page.$eval(
+			'#automaton-rule',
+			(element) => /** @type {HTMLInputElement} */ (element).value
+		),
+		'B28/S57',
+		'Changing language discarded the active automaton rule'
+	);
+	assert.equal(
+		await page.$eval('[data-testid="automaton-toggle"]', (element) =>
+			element.getAttribute('aria-pressed')
+		),
+		'true',
+		'Changing language discarded the paused state'
+	);
+
+	await setValue('#automaton-rule', 'B9/S23');
+	await page.click('button[type="submit"]');
+	assert.equal(
+		await page.$eval('#automaton-rule', (element) => element.ariaInvalid),
+		'true'
+	);
+	await waitForMainText('0から8までの数字');
+
+	await page.setViewport({ width: 320, height: 800, deviceScaleFactor: 1 });
+	await open('/cellular-automaton/?lang=en');
+	assert(
+		await page.evaluate(
+			() =>
+				document.documentElement.scrollWidth <=
+				document.documentElement.clientWidth + 1
+		),
+		'Cellular Automaton overflows a 320px viewport'
+	);
+	await page.setViewport({ width: 800, height: 600, deviceScaleFactor: 1 });
+
+	await page.emulateMediaFeatures([
+		{ name: 'prefers-reduced-motion', value: 'reduce' }
+	]);
+	await open('/cellular-automaton/?lang=en');
+	await waitForMainText(
+		'Automatic motion is disabled by your system preference.'
+	);
+	assert(
+		await page.$eval(
+			'[data-testid="automaton-toggle"]',
+			(element) => /** @type {HTMLButtonElement} */ (element).disabled
+		),
+		'Reduced motion did not disable automatic playback'
+	);
+	await page.emulateMediaFeatures([]);
+
+	const mediaSession = await page.createCDPSession();
+	await mediaSession.send('Emulation.setEmulatedMedia', {
+		features: [{ name: 'forced-colors', value: 'active' }]
+	});
+	await open('/cellular-automaton/?lang=en');
+	await waitForMainText(
+		'Cellular automaton is unavailable in forced-colors mode.'
+	);
+	assert(
+		await page.$eval(
+			'#automaton-rule',
+			(element) => /** @type {HTMLInputElement} */ (element).disabled
+		),
+		'Forced colors did not disable the visual control'
+	);
+	assert.equal(
+		await page.$eval(
+			'.automaton-canvas',
+			(element) => getComputedStyle(element).display
+		),
+		'none',
+		'Forced colors did not hide the canvas'
+	);
+	await mediaSession.send('Emulation.setEmulatedMedia', { features: [] });
+	await mediaSession.detach();
+
 	await open(
 		'/holodori/event-pt/?current=1144899&target=1145141&bonus=20&passport=1&maxJumps=50&maxRuns=8&lang=ja'
 	);

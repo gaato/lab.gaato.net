@@ -6,7 +6,7 @@
 	<title>{translate($locale, 'home.title')}</title>
 	<meta name="description" content={translate($locale, 'home.description')} />
 	<meta property="og:type" content="website" />
-	<meta property="og:site_name" content="gaato lab" />
+	<meta property="og:site_name" content="lab.gaato.net" />
 	<meta property="og:title" content={translate($locale, 'home.title')} />
 	<meta
 		property="og:description"
@@ -20,6 +20,11 @@
 		{translate($locale, 'home.collection')}
 	</h1>
 	<ul class="menu bg-base-100 rounded-box w-full shadow-sm" role="list">
+		<li>
+			<a class="py-4 text-base" href="/cellular-automaton/?lang={$locale}">
+				{translate($locale, 'home.cellularAutomatonTitle')}
+			</a>
+		</li>
 		<li>
 			<a class="py-4 text-base" href="/holodori/event-pt/?lang={$locale}">
 				{translate($locale, 'home.eventPointTitle')}

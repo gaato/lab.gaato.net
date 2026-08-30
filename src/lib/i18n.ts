@@ -7,7 +7,7 @@ export const defaultLocale: Locale = 'en';
 export const localeStorageKey = 'lab.gaato.net.locale';
 
 const ja = {
-	'site.name': 'gaato lab',
+	'site.name': 'lab.gaato.net',
 	'site.home': 'ツール一覧',
 	'site.holodori': 'ホロドリ',
 	'site.breadcrumbs': 'パンくずリスト',
@@ -18,17 +18,43 @@ const ja = {
 		'URLを共有できませんでした。ブラウザのアドレス欄からコピーしてください。',
 	'language.ja': '日本語',
 	'language.en': 'English',
-	'home.title': 'gaato lab',
-	'home.description': 'gaato labのツール一覧。',
+	'home.title': 'lab.gaato.net',
+	'home.description': 'lab.gaato.netのツール一覧。',
 	'home.collection': 'ツール',
+	'home.cellularAutomatonTitle': 'セル・オートマトン',
 	'home.eventPointTitle': 'ホロドリ：イベントPt調整',
 	'home.highLowTitle': 'ホロドリ：ハイ&ロー手札判断',
-	'holodori.title': 'ホロドリ | gaato lab',
+	'automaton.title': 'セル・オートマトン | lab.gaato.net',
+	'automaton.description':
+		'任意のLife-likeルールでセル・オートマトンをブラウザー上で動かします。',
+	'automaton.heading': 'セル・オートマトン',
+	'automaton.summary':
+		'任意のLife-likeルールを入力できます。キャンバス上でポインターを動かすとセルを追加します。',
+	'automaton.controls': 'セル・オートマトンの操作',
+	'automaton.rule': 'ルール',
+	'automaton.apply': '適用',
+	'automaton.ruleHelp': 'Life-likeのB/S記法で入力します（例：B3/S23）。',
+	'automaton.ruleInvalid':
+		'B…/S…の形式で、0から8までの数字を使用してください。',
+	'automaton.pause': '一時停止',
+	'automaton.resume': '再開',
+	'automaton.step': '1世代進める',
+	'automaton.reset': 'リセット',
+	'automaton.addSeed': '種を追加',
+	'automaton.custom': 'カスタム',
+	'automaton.reducedMotion': 'システム設定により、自動再生を停止しています。',
+	'automaton.forcedColors':
+		'強制カラーモードではセル・オートマトンを利用できません。',
+	'automaton.unavailable':
+		'このブラウザーではセル・オートマトンを利用できません。',
+	'automaton.canvasLabel':
+		'セル・オートマトンのアニメーション：{name} {notation}',
+	'holodori.title': 'ホロドリ | lab.gaato.net',
 	'holodori.description': 'ホロドリのツール一覧。',
 	'holodori.collection': 'ホロドリ',
 	'holodori.unofficial':
 		'非公式のファンメイドツールです。カバー株式会社およびゲーム運営元とは関係ありません。',
-	'event.title': 'ホロドリ：イベントPt調整 | gaato lab',
+	'event.title': 'ホロドリ：イベントPt調整 | lab.gaato.net',
 	'event.description':
 		'ホロライブ ドリームスのイベントPtを、ホッピンロープで目標値に合わせる手順を計算します。',
 	'event.unofficial':
@@ -99,7 +125,7 @@ const ja = {
 	'event.serverNote':
 		'実際の報酬はゲームサーバーが決定します。このツールは観測値から計算を再現するものです。',
 	'event.boostNote': 'イベントPtブースト使用時は未対応です。',
-	'highLow.title': 'ホロドリ：ハイ&ロー手札判断 | gaato lab',
+	'highLow.title': 'ホロドリ：ハイ&ロー手札判断 | lab.gaato.net',
 	'highLow.description':
 		'カードオブグリードの5枚から、残すカードを計算します。',
 	'highLow.heading': 'ホロドリ：ハイ&ロー手札判断',
@@ -209,8 +235,8 @@ const ja = {
 	'highLow.suit.heart': 'ハート',
 	'highLow.suit.diamond': 'ダイヤ',
 	'highLow.suit.club': 'クラブ',
-	'error.notFoundTitle': 'ページが見つかりません | gaato lab',
-	'error.genericTitle': 'エラー | gaato lab',
+	'error.notFoundTitle': 'ページが見つかりません | lab.gaato.net',
+	'error.genericTitle': 'エラー | lab.gaato.net',
 	'error.notFoundDescription': '指定されたページは見つかりませんでした。',
 	'error.genericDescription': 'ページの表示中に問題が発生しました。',
 	'error.notFoundHeading': 'ページが見つかりません',
@@ -224,7 +250,7 @@ export type MessageKey = keyof typeof ja;
 type Catalog = Record<MessageKey, string>;
 
 const en: Catalog = {
-	'site.name': 'gaato lab',
+	'site.name': 'lab.gaato.net',
 	'site.home': 'All tools',
 	'site.holodori': 'hololive Dreams',
 	'site.breadcrumbs': 'Breadcrumb',
@@ -235,17 +261,42 @@ const en: Catalog = {
 		'The URL could not be shared. Copy it from your browser address bar.',
 	'language.ja': '日本語',
 	'language.en': 'English',
-	'home.title': 'gaato lab',
-	'home.description': 'Tools on gaato lab.',
+	'home.title': 'lab.gaato.net',
+	'home.description': 'Tools on lab.gaato.net.',
 	'home.collection': 'Tools',
+	'home.cellularAutomatonTitle': 'Cellular Automaton',
 	'home.eventPointTitle': 'hololive Dreams: Event Pt calculator',
 	'home.highLowTitle': 'hololive Dreams: High & Low hand advisor',
-	'holodori.title': 'hololive Dreams | gaato lab',
+	'automaton.title': 'Cellular Automaton | lab.gaato.net',
+	'automaton.description':
+		'Run a cellular automaton with any Life-like rule in your browser.',
+	'automaton.heading': 'Cellular Automaton',
+	'automaton.summary':
+		'Enter any Life-like rule. Move the pointer over the canvas to add cells.',
+	'automaton.controls': 'Cellular automaton controls',
+	'automaton.rule': 'Rule',
+	'automaton.apply': 'Apply',
+	'automaton.ruleHelp': 'Life-like B/S notation, for example B3/S23.',
+	'automaton.ruleInvalid': 'Use B…/S… notation with digits from 0 through 8.',
+	'automaton.pause': 'Pause',
+	'automaton.resume': 'Resume',
+	'automaton.step': 'Step one generation',
+	'automaton.reset': 'Reset',
+	'automaton.addSeed': 'Add seed',
+	'automaton.custom': 'Custom',
+	'automaton.reducedMotion':
+		'Automatic motion is disabled by your system preference.',
+	'automaton.forcedColors':
+		'Cellular automaton is unavailable in forced-colors mode.',
+	'automaton.unavailable': 'Cellular automaton is unavailable in this browser.',
+	'automaton.canvasLabel':
+		'Animated cellular automaton using {name} {notation}',
+	'holodori.title': 'hololive Dreams | lab.gaato.net',
 	'holodori.description': 'Tools for hololive Dreams.',
 	'holodori.collection': 'hololive Dreams',
 	'holodori.unofficial':
 		'These are unofficial fan-made tools. They are not affiliated with COVER Corporation or the game operator.',
-	'event.title': 'hololive Dreams: Event Pt calculator | gaato lab',
+	'event.title': 'hololive Dreams: Event Pt calculator | lab.gaato.net',
 	'event.description':
 		'Calculate Hoppin Rope runs that reach an exact Event Pt target in hololive Dreams.',
 	'event.unofficial':
@@ -319,7 +370,7 @@ const en: Catalog = {
 	'event.serverNote':
 		'The game server decides the actual reward. This tool reconstructs the calculation from observed values.',
 	'event.boostNote': 'Event Pt Boost is not supported.',
-	'highLow.title': 'hololive Dreams: High & Low hand advisor | gaato lab',
+	'highLow.title': 'hololive Dreams: High & Low hand advisor | lab.gaato.net',
 	'highLow.description':
 		'Choose the five Card of Greed cards to calculate which cards to keep.',
 	'highLow.heading': 'hololive Dreams: High & Low hand advisor',
@@ -432,8 +483,8 @@ const en: Catalog = {
 	'highLow.suit.heart': 'Hearts',
 	'highLow.suit.diamond': 'Diamonds',
 	'highLow.suit.club': 'Clubs',
-	'error.notFoundTitle': 'Page not found | gaato lab',
-	'error.genericTitle': 'Error | gaato lab',
+	'error.notFoundTitle': 'Page not found | lab.gaato.net',
+	'error.genericTitle': 'Error | lab.gaato.net',
 	'error.notFoundDescription': 'The requested page could not be found.',
 	'error.genericDescription': 'A problem occurred while displaying this page.',
 	'error.notFoundHeading': 'Page not found',
