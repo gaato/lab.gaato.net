@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { extname, posix, resolve } from 'node:path';
 import { gzipSync } from 'node:zlib';
@@ -156,6 +157,7 @@ if (JSON.stringify(actualHtml) !== JSON.stringify(expectedHtml)) {
 
 for (const required of [
 	'THIRD_PARTY_NOTICES.txt',
+	'_headers',
 	'_redirects',
 	'favicon.svg'
 ]) {
@@ -190,6 +192,52 @@ if (files.includes('THIRD_PARTY_NOTICES.txt')) {
 		fail(
 			'Built third-party notices differ from static/THIRD_PARTY_NOTICES.txt'
 		);
+	}
+}
+
+if (files.includes('_headers')) {
+	const securityHeaders = await readOutput('_headers');
+	for (const required of [
+		"default-src 'self'",
+		"base-uri 'none'",
+		"connect-src 'self'",
+		"form-action 'self'",
+		"frame-ancestors 'none'",
+		"object-src 'none'",
+		"script-src 'self' https://static.cloudflareinsights.com",
+		"script-src-attr 'none'",
+		"style-src-attr 'unsafe-hashes' 'sha256-S8qMpvofolR8Mpjy4kQvEm7m1q8clzU4dfDH0AmvZjo='",
+		"worker-src 'self'",
+		'Referrer-Policy: strict-origin-when-cross-origin',
+		'X-Content-Type-Options: nosniff'
+	]) {
+		if (!securityHeaders.includes(required)) {
+			fail(`_headers is missing ${required}`);
+		}
+	}
+	for (const forbidden of ["'unsafe-inline'", "'unsafe-eval'"]) {
+		if (securityHeaders.includes(forbidden)) {
+			fail(`_headers must not contain ${forbidden}`);
+		}
+	}
+
+	const sourceHash = (source: string): string =>
+		`'sha256-${createHash('sha256').update(source).digest('base64')}'`;
+	for (const file of actualHtml) {
+		const html = await readOutput(file);
+		for (const element of ['script', 'style'] as const) {
+			for (const source of inlineBlocks(html, element)) {
+				const hash = sourceHash(source);
+				if (!securityHeaders.includes(hash)) {
+					fail(`_headers is missing ${hash} for inline ${element} in ${file}`);
+				}
+			}
+		}
+		for (const match of html.matchAll(
+			/\bstyle\s*=\s*(?:"([^"]*)"|'([^']*)')/giu
+		)) {
+			fail(`Inline style attributes are not allowed in ${file}: ${match[0]}`);
+		}
 	}
 }
 

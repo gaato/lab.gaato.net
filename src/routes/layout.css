@@ -33,6 +33,10 @@ body {
 	background: var(--color-base-200);
 }
 
+.sveltekit-body {
+	display: contents;
+}
+
 button,
 input,
 select {
