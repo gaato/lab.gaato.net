@@ -136,9 +136,9 @@
 <div class="flex min-h-[100dvh] flex-col">
 	<header class="border-base-300 bg-base-100 border-b">
 		<div class="navbar mx-auto w-full max-w-5xl px-4">
-			<div class="flex-1">
+			<div class="min-w-0 flex-1">
 				<a
-					class="btn btn-ghost px-2 text-lg font-semibold"
+					class="btn btn-ghost max-w-full truncate px-2 text-lg font-semibold"
 					href="/?lang={$locale}"
 				>
 					{translate($locale, 'site.name')}
