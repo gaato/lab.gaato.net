@@ -116,7 +116,7 @@ try {
 			'footer nav[aria-label="Project information"] a',
 			(links) => links.map((link) => link.textContent?.trim())
 		),
-		['Source', 'License', 'Third-party notices'],
+		['Source', 'License', 'Third-party notices', 'gaato.net'],
 		'Project links are missing from the shared footer'
 	);
 	assert.deepEqual(

@@ -116,6 +116,7 @@
 			<a class="link link-hover" href="/THIRD_PARTY_NOTICES.txt">
 				{translate($locale, 'site.thirdPartyNotices')}
 			</a>
+			<a class="link link-hover" href="https://gaato.net">gaato.net</a>
 		</nav>
 	</footer>
 </div>
