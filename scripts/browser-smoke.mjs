@@ -11,36 +11,41 @@ const browser = await puppeteer.launch({
 	args: ['--disable-dev-shm-usage', '--no-sandbox']
 });
 
+function collectBrowserProblems(targetPage, staticFallback = false) {
+	const problems = [];
+	targetPage.on('console', (message) => {
+		const text = message.text();
+		if (
+			message.type() === 'error' &&
+			!(
+				staticFallback &&
+				text.includes(
+					'Failed to load resource: the server responded with a status of 404'
+				)
+			)
+		) {
+			problems.push(`console: ${text}`);
+		}
+		if (message.type() === 'warn' && /hydration|svelte/iu.test(text)) {
+			problems.push(`console warning: ${text}`);
+		}
+	});
+	targetPage.on('pageerror', (error) =>
+		problems.push(`page error: ${error.message}`)
+	);
+	targetPage.on('requestfailed', (request) => {
+		if (staticFallback && request.resourceType() === 'script') return;
+		problems.push(
+			`request failed: ${request.method()} ${request.url()} (${request.failure()?.errorText ?? 'unknown error'})`
+		);
+	});
+	return problems;
+}
+
 const page = await browser.newPage();
 await page.setCacheEnabled(false);
 page.setDefaultTimeout(15_000);
-const browserProblems = [];
-let loadingExpectedNotFound = false;
-page.on('console', (message) => {
-	const text = message.text();
-	if (
-		message.type() === 'error' &&
-		!(
-			loadingExpectedNotFound &&
-			text.includes(
-				'Failed to load resource: the server responded with a status of 404'
-			)
-		)
-	) {
-		browserProblems.push(`console: ${text}`);
-	}
-	if (message.type() === 'warn' && /hydration|svelte/iu.test(text)) {
-		browserProblems.push(`console warning: ${text}`);
-	}
-});
-page.on('pageerror', (error) =>
-	browserProblems.push(`page error: ${error.message}`)
-);
-page.on('requestfailed', (request) => {
-	browserProblems.push(
-		`request failed: ${request.method()} ${request.url()} (${request.failure()?.errorText ?? 'unknown error'})`
-	);
-});
+const browserProblems = collectBrowserProblems(page);
 
 async function open(path, expectedStatus = 200) {
 	const response = await page.goto(new URL(path, baseUrl).toString(), {
@@ -109,6 +114,9 @@ async function clickButtonText(label) {
 }
 
 try {
+	await page.emulateMediaFeatures([
+		{ name: 'prefers-color-scheme', value: 'light' }
+	]);
 	await open('/cellular-automaton/?lang=en');
 	await waitForMainText('Life-like B/S notation');
 	assert.deepEqual(
@@ -119,6 +127,94 @@ try {
 		['Source', 'License', 'Third-party notices', 'Developer'],
 		'Project links are missing from the shared footer'
 	);
+	assert.deepEqual(
+		await page.$eval('#site-theme', (button) => ({
+			label: button.getAttribute('aria-label'),
+			pressed: button.getAttribute('aria-pressed')
+		})),
+		{ label: 'Use dark theme', pressed: 'false' },
+		'The theme button did not start in system mode'
+	);
+	await page.click('#site-theme');
+	await page.waitForFunction(
+		() => document.documentElement.dataset.theme === 'dark'
+	);
+	assert.deepEqual(
+		await page.$eval('#site-theme', (button) => ({
+			theme: document.documentElement.dataset.theme,
+			colorScheme: document
+				.querySelector('meta[name="color-scheme"]')
+				?.getAttribute('content'),
+			stored: localStorage.getItem('lab.gaato.net.theme'),
+			label: button.getAttribute('aria-label'),
+			pressed: button.getAttribute('aria-pressed')
+		})),
+		{
+			theme: 'dark',
+			colorScheme: 'dark',
+			stored: 'dark',
+			label: 'Use system theme',
+			pressed: 'true'
+		},
+		'The theme button did not persist the dark override'
+	);
+	await page.reload({ waitUntil: 'networkidle0' });
+	assert.equal(
+		await page.$eval('html', (element) => element.dataset.theme),
+		'dark',
+		'The stored theme was not restored after reloading'
+	);
+	await page.click('#site-theme');
+	await page.waitForFunction(
+		() => !document.documentElement.hasAttribute('data-theme')
+	);
+	assert.deepEqual(
+		await page.$eval('#site-theme', (button) => ({
+			colorScheme: document
+				.querySelector('meta[name="color-scheme"]')
+				?.getAttribute('content'),
+			stored: localStorage.getItem('lab.gaato.net.theme'),
+			label: button.getAttribute('aria-label'),
+			pressed: button.getAttribute('aria-pressed')
+		})),
+		{
+			colorScheme: 'light dark',
+			stored: null,
+			label: 'Use dark theme',
+			pressed: 'false'
+		},
+		'The theme button did not restore the system preference'
+	);
+	await page.emulateMediaFeatures([
+		{ name: 'prefers-color-scheme', value: 'dark' }
+	]);
+	await page.waitForFunction(
+		() =>
+			document.querySelector('#site-theme')?.getAttribute('aria-label') ===
+			'Use light theme'
+	);
+	assert.equal(
+		await page.$eval('html', (element) => element.getAttribute('data-theme')),
+		null,
+		'The system theme change unexpectedly pinned a daisyUI theme'
+	);
+	await page.emulateMediaFeatures([
+		{ name: 'prefers-color-scheme', value: 'light' }
+	]);
+	await page.waitForFunction(
+		() =>
+			document.querySelector('#site-theme')?.getAttribute('aria-label') ===
+			'Use dark theme'
+	);
+	await page.setViewport({ width: 320, height: 800, deviceScaleFactor: 1 });
+	assert.equal(
+		await page.$eval('header', (element) =>
+			Boolean(element.clientWidth && element.scrollWidth <= element.clientWidth)
+		),
+		true,
+		'The shared header overflowed at the minimum supported width'
+	);
+	await page.setViewport({ width: 800, height: 600, deviceScaleFactor: 1 });
 	assert.deepEqual(
 		await page.$$eval('nav[aria-label="Breadcrumb"] a', (links) =>
 			links.map((link) => link.textContent?.trim())
@@ -609,21 +705,41 @@ try {
 
 	// Verify the fallback itself remains useful even if the hosting platform adds
 	// unrelated scripts (for example, Cloudflare security instrumentation).
-	await page.setJavaScriptEnabled(false);
-	loadingExpectedNotFound = true;
-	await open('/this-lab-route-does-not-exist/', 404);
-	loadingExpectedNotFound = false;
-	assert.equal(
-		await page.$eval('html', (element) => element.lang),
-		'en',
-		'The static document did not use the English fallback language'
-	);
-	assert.match(await mainText(), /Page not found/u);
 	assert.deepEqual(
 		browserProblems,
 		[],
-		`Browser problems: ${browserProblems.join('; ')}`
+		`Browser problems before the static fallback check: ${browserProblems.join('; ')}`
 	);
+	const fallbackPage = await browser.newPage();
+	fallbackPage.setDefaultTimeout(15_000);
+	const fallbackProblems = collectBrowserProblems(fallbackPage, true);
+	await fallbackPage.setJavaScriptEnabled(false);
+	const fallbackResponse = await fallbackPage.goto(
+		new URL('/this-lab-route-does-not-exist/', baseUrl).toString(),
+		{ waitUntil: 'networkidle0' }
+	);
+	assert(fallbackResponse, 'No navigation response for the static fallback');
+	assert.equal(
+		fallbackResponse.status(),
+		404,
+		'The static fallback was not a 404'
+	);
+	await fallbackPage.waitForSelector('h1');
+	assert.equal(
+		await fallbackPage.$eval('html', (element) => element.lang),
+		'en',
+		'The static document did not use the English fallback language'
+	);
+	assert.match(
+		await fallbackPage.$eval('main', (element) => element.textContent ?? ''),
+		/Page not found/u
+	);
+	assert.deepEqual(
+		fallbackProblems,
+		[],
+		`Static fallback browser problems: ${fallbackProblems.join('; ')}`
+	);
+	await fallbackPage.close();
 
 	console.log('browser smoke passed');
 } finally {

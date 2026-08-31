@@ -3,11 +3,18 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="color-scheme" content="light dark" />
 		<meta name="theme-color" content="#3158c9" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
 		<script>
 			(() => {
 				try {
+					const theme = localStorage.getItem('lab.gaato.net.theme');
+					if (theme === 'light' || theme === 'dark') {
+						document.documentElement.dataset.theme = theme;
+						document.querySelector('meta[name="color-scheme"]').content = theme;
+					}
+
 					const supported = new Set(['ja', 'en']);
 					const query = new URLSearchParams(location.search).get('lang');
 					const stored = localStorage.getItem('lab.gaato.net.locale');
