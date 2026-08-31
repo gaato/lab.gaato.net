@@ -858,6 +858,135 @@
 					</div>
 				{/if}
 			</div>
+
+			{#if analysis && primaryStrategy}
+				<details
+					id="recommendation-breakdown"
+					class="collapse-arrow bg-base-100 collapse shadow-sm"
+				>
+					<summary class="collapse-title text-lg font-semibold">
+						{translate($locale, 'highLow.detailsHeading')}
+					</summary>
+					<div class="collapse-content space-y-6">
+						{#each analysis.bestStrategies as strategy, index}
+							<section
+								class={`space-y-4 ${index > 0 ? 'border-base-300 border-t pt-6' : ''}`}
+								aria-labelledby={`strategy-breakdown-heading-${strategy.holdMask}`}
+							>
+								<h3
+									id={`strategy-breakdown-heading-${strategy.holdMask}`}
+									class="font-semibold"
+								>
+									{strategyHeading($locale, strategy)}
+								</h3>
+
+								<div class="stats bg-base-200 w-full">
+									<div class="stat p-4">
+										<div class="stat-title">
+											{translate($locale, 'highLow.pokerExpected')}
+										</div>
+										<div class="stat-value numeric text-2xl">
+											{translate($locale, 'highLow.coins', {
+												value: formatDecimal(
+													$locale,
+													strategy.expectedPokerPayout
+												)
+											})}
+										</div>
+									</div>
+								</div>
+
+								<section
+									aria-labelledby={`distribution-heading-${strategy.holdMask}`}
+								>
+									<h4
+										id={`distribution-heading-${strategy.holdMask}`}
+										class="mb-2 font-semibold"
+									>
+										{translate($locale, 'highLow.distribution')}
+									</h4>
+									<div class="overflow-x-auto">
+										<table class="table-sm table">
+											<thead>
+												<tr>
+													<th scope="col">
+														{translate($locale, 'highLow.handType')}
+													</th>
+													<th class="text-right" scope="col">
+														{translate($locale, 'highLow.probability')}
+													</th>
+												</tr>
+											</thead>
+											<tbody>
+												{#each HAND_RANKS as rank}
+													{#if strategy.rankProbabilities[rank] > 0}
+														<tr>
+															<th scope="row">
+																{translate($locale, handRankMessageKey(rank))}
+															</th>
+															<td class="numeric text-right">
+																{formatProbability(
+																	$locale,
+																	strategy.rankProbabilities[rank]
+																)}
+															</td>
+														</tr>
+													{/if}
+												{/each}
+											</tbody>
+										</table>
+									</div>
+								</section>
+							</section>
+						{/each}
+
+						{#if alternativeStrategies.length > 0}
+							<section aria-labelledby="alternatives-heading">
+								<h3 id="alternatives-heading" class="mb-2 font-semibold">
+									{translate($locale, 'highLow.alternatives')}
+								</h3>
+								<div class="grid gap-3 sm:grid-cols-2">
+									{#each alternativeStrategies as strategy}
+										<article class="bg-base-200 rounded-box p-4">
+											<h4 class="font-semibold">
+												{strategyHeading($locale, strategy)}
+											</h4>
+											<p class="mt-1 font-mono text-sm">
+												{strategyCardList($locale, strategy)}
+											</p>
+											<p class="text-base-content/70 numeric mt-2 text-sm">
+												{translate($locale, 'highLow.difference', {
+													value: formatDecimal(
+														$locale,
+														primaryStrategy.expectedFinalPayout -
+															strategy.expectedFinalPayout
+													)
+												})}
+											</p>
+										</article>
+									{/each}
+								</div>
+							</section>
+						{/if}
+					</div>
+				</details>
+			{/if}
+
+			<details
+				id="calculation-method"
+				class="collapse-arrow bg-base-100 collapse shadow-sm"
+			>
+				<summary class="collapse-title text-lg font-semibold">
+					{translate($locale, 'highLow.methodHeading')}
+				</summary>
+				<div class="collapse-content">
+					<div class="text-base-content/70 grid gap-2 text-sm">
+						<p>{translate($locale, 'highLow.methodIntro')}</p>
+						<p>{translate($locale, 'highLow.methodHighLow')}</p>
+						<p>{translate($locale, 'highLow.methodLimit')}</p>
+					</div>
+				</div>
+			</details>
 		</section>
 	</div>
 
@@ -1062,108 +1191,6 @@
 			{/if}
 		</div>
 	</section>
-
-	{#if analysis && primaryStrategy}
-		<details class="collapse-arrow bg-base-100 collapse mt-6 shadow-sm">
-			<summary class="collapse-title text-lg font-semibold">
-				{translate($locale, 'highLow.detailsHeading')}
-			</summary>
-			<div class="collapse-content space-y-6">
-				<div class="stats bg-base-200 w-full">
-					<div class="stat p-4">
-						<div class="stat-title">
-							{translate($locale, 'highLow.pokerExpected')}
-						</div>
-						<div class="stat-value numeric text-2xl">
-							{translate($locale, 'highLow.coins', {
-								value: formatDecimal(
-									$locale,
-									primaryStrategy.expectedPokerPayout
-								)
-							})}
-						</div>
-					</div>
-				</div>
-
-				<section aria-labelledby="distribution-heading">
-					<h3 id="distribution-heading" class="mb-2 font-semibold">
-						{translate($locale, 'highLow.distribution')}
-					</h3>
-					<div class="overflow-x-auto">
-						<table class="table-sm table">
-							<thead>
-								<tr>
-									<th scope="col">{translate($locale, 'highLow.handType')}</th>
-									<th class="text-right" scope="col">
-										{translate($locale, 'highLow.probability')}
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{#each HAND_RANKS as rank}
-									{#if primaryStrategy.rankProbabilities[rank] > 0}
-										<tr>
-											<th scope="row">
-												{translate($locale, handRankMessageKey(rank))}
-											</th>
-											<td class="numeric text-right">
-												{formatProbability(
-													$locale,
-													primaryStrategy.rankProbabilities[rank]
-												)}
-											</td>
-										</tr>
-									{/if}
-								{/each}
-							</tbody>
-						</table>
-					</div>
-				</section>
-
-				{#if alternativeStrategies.length > 0}
-					<section aria-labelledby="alternatives-heading">
-						<h3 id="alternatives-heading" class="mb-2 font-semibold">
-							{translate($locale, 'highLow.alternatives')}
-						</h3>
-						<div class="grid gap-3 sm:grid-cols-2">
-							{#each alternativeStrategies as strategy}
-								<article class="bg-base-200 rounded-box p-4">
-									<h4 class="font-semibold">
-										{strategyHeading($locale, strategy)}
-									</h4>
-									<p class="mt-1 font-mono text-sm">
-										{strategyCardList($locale, strategy)}
-									</p>
-									<p class="text-base-content/70 numeric mt-2 text-sm">
-										{translate($locale, 'highLow.difference', {
-											value: formatDecimal(
-												$locale,
-												primaryStrategy.expectedFinalPayout -
-													strategy.expectedFinalPayout
-											)
-										})}
-									</p>
-								</article>
-							{/each}
-						</div>
-					</section>
-				{/if}
-			</div>
-		</details>
-	{/if}
-
-	<details class="collapse-arrow bg-base-100 collapse mt-6 shadow-sm">
-		<summary class="collapse-title text-lg font-semibold">
-			{translate($locale, 'highLow.methodHeading')}
-		</summary>
-		<div class="collapse-content">
-			<div class="text-base-content/70 grid gap-2 text-sm">
-				<p>{translate($locale, 'highLow.methodIntro')}</p>
-				<p>{translate($locale, 'highLow.methodHighLow')}</p>
-				<p>{translate($locale, 'highLow.methodLimit')}</p>
-			</div>
-		</div>
-	</details>
 
 	<ToolShare
 		activeLocale={$locale}

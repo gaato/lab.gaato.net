@@ -454,6 +454,31 @@ try {
 	const highLowResultText = await mainText();
 	assert.match(highLowResultText, /Expected total payout/u);
 	assert.match(highLowResultText, /Winning-hand rate/u);
+	assert.equal(
+		await page.$eval('#recommendation-breakdown summary', (element) =>
+			element.textContent?.trim()
+		),
+		'Recommendation breakdown'
+	);
+	assert(
+		await page.$eval('#recommendation-breakdown', (details) => {
+			const result = document.querySelector(
+				'section[aria-labelledby="result-heading"]'
+			);
+			const method = document.querySelector('#calculation-method');
+			const route = document.querySelector('#daily-route-heading');
+			return Boolean(
+				result?.contains(details) &&
+				method &&
+				result.contains(method) &&
+				route &&
+				details.compareDocumentPosition(method) &
+					Node.DOCUMENT_POSITION_FOLLOWING &&
+				method.compareDocumentPosition(route) & Node.DOCUMENT_POSITION_FOLLOWING
+			);
+		}),
+		'The recommendation details were not grouped with the result before the daily route'
+	);
 
 	await page.select('#daily-hand-rank', 'two-pair');
 	await waitForMainText('Cash out 12,800 coins after 6 successful double-ups');
