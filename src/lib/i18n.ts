@@ -16,6 +16,7 @@ const ja = {
 	'site.source': 'ソースコード',
 	'site.license': 'ライセンス',
 	'site.thirdPartyNotices': '第三者ライセンス',
+	'site.developer': '開発者',
 	'site.shareTool': 'このツールを共有',
 	'site.shareCopied': 'URLをコピーしました。',
 	'site.shareFailed':
@@ -261,6 +262,7 @@ const en: Catalog = {
 	'site.source': 'Source',
 	'site.license': 'License',
 	'site.thirdPartyNotices': 'Third-party notices',
+	'site.developer': 'Developer',
 	'site.shareTool': 'Share this tool',
 	'site.shareCopied': 'URL copied.',
 	'site.shareFailed':

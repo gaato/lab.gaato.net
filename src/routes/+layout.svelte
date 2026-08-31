@@ -109,14 +109,16 @@
 			</a>
 			<a
 				class="link link-hover"
-				href="https://github.com/gaato/lab.gaato.net/blob/main/LICENSE"
+				href="https://blueoakcouncil.org/license/1.0.0"
 			>
 				{translate($locale, 'site.license')}
 			</a>
 			<a class="link link-hover" href="/THIRD_PARTY_NOTICES.txt">
 				{translate($locale, 'site.thirdPartyNotices')}
 			</a>
-			<a class="link link-hover" href="https://gaato.net">gaato.net</a>
+			<a class="link link-hover" href="https://gaato.net">
+				{translate($locale, 'site.developer')}
+			</a>
 		</nav>
 	</footer>
 </div>
