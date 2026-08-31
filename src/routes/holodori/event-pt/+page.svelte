@@ -808,6 +808,7 @@
 		path="/holodori/event-pt/"
 		title={translate($locale, 'event.heading')}
 		description={translate($locale, 'event.description')}
+		hashtag={translate($locale, 'holodori.hashtag')}
 	/>
 
 	<footer class="text-base-content/60 mt-6 text-center text-xs">

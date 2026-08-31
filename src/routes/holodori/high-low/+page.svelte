@@ -1197,6 +1197,7 @@
 		path="/holodori/high-low/"
 		title={translate($locale, 'highLow.heading')}
 		description={translate($locale, 'highLow.description')}
+		hashtag={translate($locale, 'holodori.hashtag')}
 	/>
 
 	<footer class="text-base-content/60 mt-6 text-center text-xs">

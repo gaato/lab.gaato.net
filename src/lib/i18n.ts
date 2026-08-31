@@ -59,6 +59,7 @@ const ja = {
 		'セル・オートマトンのアニメーション：{name} {notation}',
 	'holodori.title': 'ホロドリ | lab.gaato.net',
 	'holodori.description': 'ホロドリのツール一覧。',
+	'holodori.hashtag': '#ホロドリ',
 	'holodori.collection': 'ホロドリ',
 	'holodori.unofficial':
 		'非公式のファンメイドツールです。カバー株式会社およびゲーム運営元とは関係ありません。',
@@ -307,6 +308,7 @@ const en: Catalog = {
 		'Animated cellular automaton using {name} {notation}',
 	'holodori.title': 'hololive Dreams | lab.gaato.net',
 	'holodori.description': 'Tools for hololive Dreams.',
+	'holodori.hashtag': '#holodori',
 	'holodori.collection': 'hololive Dreams',
 	'holodori.unofficial':
 		'These are unofficial fan-made tools. They are not affiliated with COVER Corporation or the game operator.',

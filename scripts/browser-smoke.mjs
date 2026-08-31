@@ -647,8 +647,8 @@ try {
 	);
 	assert.equal(
 		sharedData.text,
-		'カードオブグリードの5枚から、残すカードを計算します。',
-		'The share data included something other than the tool description'
+		'カードオブグリードの5枚から、残すカードを計算します。 #ホロドリ',
+		'The Japanese share data did not include the localized hashtag'
 	);
 	const sharedHighLowUrl = new URL(sharedData.url);
 	assert.equal(sharedHighLowUrl.pathname, '/holodori/high-low/');
@@ -669,6 +669,22 @@ try {
 		await mainText(),
 		/4枚を残す/u,
 		'The Japanese strategy heading remained after switching to English'
+	);
+	await page.evaluate(() => {
+		window.__sharedData = null;
+	});
+	await clickButtonText('Share this tool');
+	await page.waitForFunction(() => window.__sharedData);
+	const sharedEnglishData = await page.evaluate(() => window.__sharedData);
+	assert.equal(
+		sharedEnglishData.text,
+		'Choose the five Card of Greed cards to calculate which cards to keep. #holodori',
+		'The English share data did not include the localized hashtag'
+	);
+	assert.equal(
+		new URL(sharedEnglishData.url).searchParams.toString(),
+		'lang=en',
+		'The English share URL did not use the current locale'
 	);
 
 	await page.click('button[aria-label^="Card 1 "]');

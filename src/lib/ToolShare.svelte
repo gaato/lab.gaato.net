@@ -6,9 +6,10 @@
 		path: string;
 		title: string;
 		description: string;
+		hashtag?: string;
 	};
 
-	let { activeLocale, path, title, description }: Props = $props();
+	let { activeLocale, path, title, description, hashtag }: Props = $props();
 	let status: MessageKey | null = $state(null);
 
 	function toolUrl(): string {
@@ -29,10 +30,11 @@
 	async function shareTool(): Promise<void> {
 		status = null;
 		const url = toolUrl();
+		const text = hashtag ? `${description} ${hashtag}` : description;
 
 		if (typeof navigator.share === 'function') {
 			try {
-				await navigator.share({ title, text: description, url });
+				await navigator.share({ title, text, url });
 				return;
 			} catch (error) {
 				if (error instanceof DOMException && error.name === 'AbortError')
