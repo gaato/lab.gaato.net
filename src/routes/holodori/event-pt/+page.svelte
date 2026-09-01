@@ -806,7 +806,7 @@
 	<ToolShare
 		activeLocale={$locale}
 		path="/holodori/event-pt/"
-		title={translate($locale, 'event.heading')}
+		title={translate($locale, 'home.eventPointTitle')}
 		description={translate($locale, 'event.description')}
 		hashtag={translate($locale, 'holodori.hashtag')}
 	/>

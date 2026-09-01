@@ -1195,7 +1195,7 @@
 	<ToolShare
 		activeLocale={$locale}
 		path="/holodori/high-low/"
-		title={translate($locale, 'highLow.heading')}
+		title={translate($locale, 'home.highLowTitle')}
 		description={translate($locale, 'highLow.description')}
 		hashtag={translate($locale, 'holodori.hashtag')}
 	/>

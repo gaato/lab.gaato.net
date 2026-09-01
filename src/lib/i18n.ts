@@ -61,6 +61,8 @@ const ja = {
 	'holodori.description': 'ホロドリのツール一覧。',
 	'holodori.hashtag': '#ホロドリ',
 	'holodori.collection': 'ホロドリ',
+	'holodori.eventPointTitle': 'イベントPt調整',
+	'holodori.highLowTitle': 'ハイ&ロー手札判断',
 	'holodori.unofficial':
 		'非公式のファンメイドツールです。カバー株式会社およびゲーム運営元とは関係ありません。',
 	'event.title': 'ホロドリ：イベントPt調整 | lab.gaato.net',
@@ -68,7 +70,7 @@ const ja = {
 		'ホロライブ ドリームスのイベントPtを、ホッピンロープで目標値に合わせる手順を計算します。',
 	'event.unofficial':
 		'非公式のファンメイドツールです。カバー株式会社およびゲーム運営元とは関係ありません。',
-	'event.heading': 'ホロドリ：イベントPt調整',
+	'event.heading': 'イベントPt調整',
 	'event.summary':
 		'ホッピンロープの成功回数を組み合わせて、目標Ptに合わせます。イベントPtブースト使用時は未対応です。',
 	'event.formLegend': '条件',
@@ -138,7 +140,7 @@ const ja = {
 	'highLow.title': 'ホロドリ：ハイ&ロー手札判断 | lab.gaato.net',
 	'highLow.description':
 		'カードオブグリードの5枚から、残すカードを計算します。',
-	'highLow.heading': 'ホロドリ：ハイ&ロー手札判断',
+	'highLow.heading': 'ハイ&ロー手札判断',
 	'highLow.summary':
 		'カードオブグリードの5枚を入力すると、残すカードを計算します。',
 	'highLow.handLegend': '手札',
@@ -311,6 +313,8 @@ const en: Catalog = {
 	'holodori.description': 'Tools for hololive Dreams.',
 	'holodori.hashtag': '#holodori',
 	'holodori.collection': 'hololive Dreams',
+	'holodori.eventPointTitle': 'Event Pt calculator',
+	'holodori.highLowTitle': 'High & Low hand advisor',
 	'holodori.unofficial':
 		'These are unofficial fan-made tools. They are not affiliated with COVER Corporation or the game operator.',
 	'event.title': 'hololive Dreams: Event Pt calculator | lab.gaato.net',
@@ -318,7 +322,7 @@ const en: Catalog = {
 		'Calculate Hoppin Rope runs that reach an exact Event Pt target in hololive Dreams.',
 	'event.unofficial':
 		'This is an unofficial fan-made tool. It is not affiliated with COVER Corporation or the game operator.',
-	'event.heading': 'hololive Dreams: Event Pt calculator',
+	'event.heading': 'Event Pt calculator',
 	'event.summary':
 		'Combine Hoppin Rope success counts to reach the target Pt. Event Pt Boost is not supported.',
 	'event.formLegend': 'Inputs',
@@ -390,7 +394,7 @@ const en: Catalog = {
 	'highLow.title': 'hololive Dreams: High & Low hand advisor | lab.gaato.net',
 	'highLow.description':
 		'Choose the five Card of Greed cards to calculate which cards to keep.',
-	'highLow.heading': 'hololive Dreams: High & Low hand advisor',
+	'highLow.heading': 'High & Low hand advisor',
 	'highLow.summary':
 		'Choose your five Card of Greed cards to calculate which ones to keep.',
 	'highLow.handLegend': 'Hand',

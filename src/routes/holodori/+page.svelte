@@ -35,12 +35,12 @@
 	<ul class="menu bg-base-100 rounded-box w-full shadow-sm" role="list">
 		<li>
 			<a class="py-4 text-base" href="/holodori/event-pt/?lang={$locale}">
-				{translate($locale, 'home.eventPointTitle')}
+				{translate($locale, 'holodori.eventPointTitle')}
 			</a>
 		</li>
 		<li>
 			<a class="py-4 text-base" href="/holodori/high-low/?lang={$locale}">
-				{translate($locale, 'home.highLowTitle')}
+				{translate($locale, 'holodori.highLowTitle')}
 			</a>
 		</li>
 	</ul>
