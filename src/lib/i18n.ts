@@ -76,7 +76,8 @@ const ja = {
 	'event.targetLabel': '目標Pt',
 	'event.bonusLabel': 'イベントボーナス',
 	'event.bonusUnit': '%',
-	'event.bonusHint': '編成画面の合計ボーナス。0.1%単位で入力できます。',
+	'event.bonusHint':
+		'通常は、所持している対象カード1枚につき20%です。ホッピンロープがボーナス対象の場合は、その倍率も加えます。',
 	'event.passportLabel': 'ホロパスポートを使用',
 	'event.passportHint': '獲得Ptが2倍になります。',
 	'event.limitLegend': '探索範囲',
@@ -326,7 +327,7 @@ const en: Catalog = {
 	'event.bonusLabel': 'Event bonus',
 	'event.bonusUnit': '%',
 	'event.bonusHint':
-		'Total bonus shown on the team screen. Up to one decimal place.',
+		'Typically, each eligible card you own adds 20%. If Hoppin Rope itself has a bonus, add that too.',
 	'event.passportLabel': 'Use Holo Passport',
 	'event.passportHint': 'Doubles the reward.',
 	'event.limitLegend': 'Search limits',
