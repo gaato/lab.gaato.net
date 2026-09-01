@@ -53,55 +53,66 @@
 		clubs: '♣'
 	};
 
-	let cards: CardSlot[] = Array<CardSlot>(HAND_SIZE).fill(null);
-	let selectedIndex = 0;
-	let selectedRank: Rank | null = null;
-	let selectedSuit: Suit | null = null;
-	let duplicateError = false;
-	let loading = false;
-	let analysisError = false;
-	let analysis: HandAnalysis | null = null;
+	let cards = $state<CardSlot[]>(Array<CardSlot>(HAND_SIZE).fill(null));
+	let selectedIndex = $state(0);
+	let selectedRank = $state<Rank | null>(null);
+	let selectedSuit = $state<Suit | null>(null);
+	let duplicateError = $state(false);
+	let loading = $state(false);
+	let analysisError = $state(false);
+	let analysis = $state<HandAnalysis | null>(null);
 	let analysisWorker: Worker | null = null;
 	let analysisTimer: ReturnType<typeof setTimeout> | null = null;
 	let requestSequence = 0;
-	let dailyProgress: DailyHighLowProgressV2 = createDailyHighLowProgress();
-	let selectedDailyRank: PayingHandRank | null = null;
-	let selectedDailyDoubleUps: number | null = null;
-	let dailyStorageError = false;
-	let dailyResetArmed = false;
+	let dailyProgress = $state<DailyHighLowProgressV2>(
+		createDailyHighLowProgress()
+	);
+	let selectedDailyRank = $state<PayingHandRank | null>(null);
+	let selectedDailyDoubleUps = $state<number | null>(null);
+	let dailyStorageError = $state(false);
+	let dailyResetArmed = $state(false);
 	let dailyResetTimer: ReturnType<typeof setTimeout> | null = null;
 
-	$: selectedCard = cards[selectedIndex];
-	$: selectedCardIsJoker = selectedCard?.kind === 'joker';
-	$: completedCardCount = cards.filter((card) => card !== null).length;
-	$: remainingCardCount = HAND_SIZE - completedCardCount;
-	$: primaryStrategy = analysis?.bestStrategies[0] ?? null;
-	$: alternativeStrategies = analysis
-		? analysis.strategies
-				.filter(
-					(strategy) =>
-						!analysis?.bestStrategies.some(
-							(best) => best.holdMask === strategy.holdMask
-						)
-				)
-				.slice(0, 2)
-		: [];
-	$: dailySubtotal = calculateDailySubtotal(dailyProgress.entries);
-	$: dailyRecommendation = selectedDailyRank
-		? recommendDailyCashout(dailySubtotal, selectedDailyRank)
-		: null;
-	$: dailyDoubleUpOptions = dailyRecommendation?.options ?? [];
-	$: selectedDailyOption =
+	const selectedCard = $derived(cards[selectedIndex]);
+	const selectedCardIsJoker = $derived(selectedCard?.kind === 'joker');
+	const completedCardCount = $derived(
+		cards.filter((card) => card !== null).length
+	);
+	const remainingCardCount = $derived(HAND_SIZE - completedCardCount);
+	const primaryStrategy = $derived(analysis?.bestStrategies[0] ?? null);
+	const alternativeStrategies = $derived(
+		analysis
+			? analysis.strategies
+					.filter(
+						(strategy) =>
+							!analysis?.bestStrategies.some(
+								(best) => best.holdMask === strategy.holdMask
+							)
+					)
+					.slice(0, 2)
+			: []
+	);
+	const dailySubtotal = $derived(calculateDailySubtotal(dailyProgress.entries));
+	const dailyRecommendation = $derived(
+		selectedDailyRank
+			? recommendDailyCashout(dailySubtotal, selectedDailyRank)
+			: null
+	);
+	const dailyDoubleUpOptions = $derived(dailyRecommendation?.options ?? []);
+	const selectedDailyOption = $derived(
 		dailyDoubleUpOptions.find(
 			(option) => option.successfulDoubleUps === selectedDailyDoubleUps
-		) ?? null;
-	$: dailyHistoryRows = dailyProgress.entries
-		.map((entry, index) => ({
-			entry,
-			index,
-			payout: calculateDailyEntryPayout(entry)
-		}))
-		.reverse();
+		) ?? null
+	);
+	const dailyHistoryRows = $derived(
+		dailyProgress.entries
+			.map((entry, index) => ({
+				entry,
+				index,
+				payout: calculateDailyEntryPayout(entry)
+			}))
+			.reverse()
+	);
 
 	function suitMessageKey(suit: Suit): MessageKey {
 		switch (suit) {
