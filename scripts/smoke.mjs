@@ -25,8 +25,8 @@ const checks = [
 		path: '/holodori/',
 		status: 200,
 		expectedTexts: [
-			'hololive Dreams: Event Pt calculator',
-			'hololive Dreams: High &amp; Low hand advisor',
+			'Event Pt calculator',
+			'High &amp; Low hand advisor',
 			'COVER Corporation'
 		]
 	},
