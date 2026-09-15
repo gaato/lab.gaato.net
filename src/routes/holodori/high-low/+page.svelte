@@ -199,7 +199,8 @@
 
 	function completeHand(nextCards: CardSlot[]): Card[] | null {
 		if (nextCards.some((card) => card === null)) return null;
-		return nextCards as Card[];
+		// Snapshot the $state proxies: structured cloning a proxy throws.
+		return $state.snapshot(nextCards) as Card[];
 	}
 
 	function stopWorker(): void {
