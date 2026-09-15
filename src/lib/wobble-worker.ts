@@ -3,12 +3,23 @@ import {
 	jellyFrameSource,
 	type AnimationFormat
 } from './wobble/encode';
+import { withBackground, type Background } from './wobble/composite';
 import {
 	MAX_PIXELS_PER_JOB,
 	MAX_SOURCE_EDGE,
 	normalizeSettings,
 	type WobbleSettings
 } from './wobble/settings';
+import { outputSize } from './wobble/warp';
+
+type WorkerBackground =
+	| { type: 'color'; rgb: [number, number, number] }
+	| {
+			type: 'image';
+			width: number;
+			height: number;
+			pixels: ArrayBuffer;
+	  };
 
 export type JellyGifWorkerRequest = {
 	type: 'encode';
@@ -18,6 +29,7 @@ export type JellyGifWorkerRequest = {
 	pixels: ArrayBuffer;
 	settings: WobbleSettings;
 	format?: AnimationFormat;
+	background?: WorkerBackground;
 };
 
 export type JellyGifWorkerErrorCode =
@@ -64,6 +76,20 @@ function isArrayBuffer(value: unknown): value is ArrayBuffer {
 	return (
 		value instanceof ArrayBuffer ||
 		Object.prototype.toString.call(value) === '[object ArrayBuffer]'
+	);
+}
+
+function validRgb(value: unknown): value is [number, number, number] {
+	return (
+		Array.isArray(value) &&
+		value.length === 3 &&
+		value.every(
+			(channel) =>
+				typeof channel === 'number' &&
+				Number.isInteger(channel) &&
+				channel >= 0 &&
+				channel <= 255
+		)
 	);
 }
 
@@ -143,11 +169,78 @@ export function processJellyGifWorkerRequest(
 		};
 	}
 
+	let background: Background | undefined;
+	if ('background' in request && request.background !== undefined) {
+		const value = request.background;
+		if (typeof value !== 'object' || value === null || !('type' in value)) {
+			return {
+				type: 'error',
+				requestId,
+				error: {
+					code: 'invalid_request',
+					message: 'expected a valid Jelly GIF encode request'
+				}
+			};
+		}
+		if (value.type === 'color' && 'rgb' in value && validRgb(value.rgb)) {
+			background = { type: 'color', rgb: value.rgb };
+		} else if (
+			value.type === 'image' &&
+			'width' in value &&
+			typeof value.width === 'number' &&
+			Number.isInteger(value.width) &&
+			'height' in value &&
+			typeof value.height === 'number' &&
+			Number.isInteger(value.height) &&
+			'pixels' in value &&
+			isArrayBuffer(value.pixels)
+		) {
+			const expected = outputSize(
+				{ width, height, data: new Uint8ClampedArray() },
+				settings
+			);
+			if (
+				value.width !== expected.width ||
+				value.height !== expected.height ||
+				value.pixels.byteLength !== value.width * value.height * 4
+			) {
+				return {
+					type: 'error',
+					requestId,
+					error: {
+						code: 'invalid_request',
+						message: 'expected a valid Jelly GIF encode request'
+					}
+				};
+			}
+			background = {
+				type: 'image',
+				image: {
+					width: value.width,
+					height: value.height,
+					data: new Uint8ClampedArray(value.pixels)
+				}
+			};
+		} else {
+			return {
+				type: 'error',
+				requestId,
+				error: {
+					code: 'invalid_request',
+					message: 'expected a valid Jelly GIF encode request'
+				}
+			};
+		}
+	}
+
 	try {
-		const frames = jellyFrameSource(
+		const jellyFrames = jellyFrameSource(
 			{ width, height, data: new Uint8ClampedArray(pixels) },
 			settings
 		);
+		const frames = background
+			? withBackground(jellyFrames, background)
+			: jellyFrames;
 		const { encoder, mimeType, extension } = animationEncoders[format];
 		return {
 			type: 'result',

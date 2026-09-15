@@ -26,6 +26,11 @@
 			</a>
 		</li>
 		<li>
+			<a class="py-4 text-base" href="/jelly-gif/?lang={$locale}">
+				{translate($locale, 'home.jellyGifTitle')}
+			</a>
+		</li>
+		<li>
 			<a class="py-4 text-base" href="/holodori/event-pt/?lang={$locale}">
 				{translate($locale, 'home.eventPointTitle')}
 			</a>

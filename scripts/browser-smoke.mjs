@@ -113,6 +113,92 @@ async function clickButtonText(label) {
 	assert(clicked, `No button with exact text ${JSON.stringify(label)}`);
 }
 
+async function injectJellyGifImage() {
+	await page.evaluate(async () => {
+		const canvas = document.createElement('canvas');
+		canvas.width = 64;
+		canvas.height = 48;
+		const context = canvas.getContext('2d');
+		if (!context) throw new Error('Could not create the sample image context');
+		const gradient = context.createLinearGradient(0, 0, canvas.width, 0);
+		gradient.addColorStop(0, '#f43f5e');
+		gradient.addColorStop(1, '#3b82f6');
+		context.fillStyle = gradient;
+		context.fillRect(0, 0, canvas.width, canvas.height);
+		context.clearRect(0, 0, 10, 10);
+		const blob = await new Promise((resolve) =>
+			canvas.toBlob(resolve, 'image/png')
+		);
+		if (!blob) throw new Error('Could not create the sample PNG');
+		const file = new File([blob], 'sample.png', { type: 'image/png' });
+		const dataTransfer = new DataTransfer();
+		dataTransfer.items.add(file);
+		const input = document.querySelector('#jelly-gif-file');
+		if (!(input instanceof HTMLInputElement)) {
+			throw new Error('Could not find the Jelly GIF file input');
+		}
+		input.files = dataTransfer.files;
+		input.dispatchEvent(new Event('change', { bubbles: true }));
+	});
+}
+
+async function injectJellyGifBackgroundImage() {
+	await page.evaluate(async () => {
+		const canvas = document.createElement('canvas');
+		canvas.width = 16;
+		canvas.height = 16;
+		const context = canvas.getContext('2d');
+		if (!context) throw new Error('Could not create the background context');
+		context.fillStyle = '#0000ff';
+		context.fillRect(0, 0, canvas.width, canvas.height);
+		const blob = await new Promise((resolve) =>
+			canvas.toBlob(resolve, 'image/png')
+		);
+		if (!blob) throw new Error('Could not create the background PNG');
+		const file = new File([blob], 'background.png', { type: 'image/png' });
+		const dataTransfer = new DataTransfer();
+		dataTransfer.items.add(file);
+		const input = document.querySelector('#jelly-gif-background-file');
+		if (!(input instanceof HTMLInputElement)) {
+			throw new Error('Could not find the Jelly GIF background input');
+		}
+		input.files = dataTransfer.files;
+		input.dispatchEvent(new Event('change', { bubbles: true }));
+	});
+}
+
+async function jellyGifResultPixel(x, y) {
+	return page.$eval(
+		'[data-testid="jelly-gif-result"]',
+		(element, pixel) => {
+			const image = /** @type {HTMLImageElement} */ (element);
+			const canvas = document.createElement('canvas');
+			canvas.width = image.naturalWidth;
+			canvas.height = image.naturalHeight;
+			const context = canvas.getContext('2d');
+			if (!context) throw new Error('Could not decode the generated GIF');
+			context.drawImage(image, 0, 0);
+			const [r, g, b, a] = context.getImageData(pixel.x, pixel.y, 1, 1).data;
+			return { r, g, b, a };
+		},
+		{ x, y }
+	);
+}
+
+async function jellyGifAchievedSpeed() {
+	return page.$eval('output[for="jelly-gif-speed"]', (element) => {
+		const frames = Number(
+			(element.textContent ?? '').match(/(\d+)\s*(?:frames|フレーム)/u)?.[1]
+		);
+		const delay = Number(
+			/** @type {HTMLInputElement} */ (
+				document.querySelector('#jelly-gif-delay')
+			).value
+		);
+		return 100 / (delay * frames);
+	});
+}
+
 try {
 	await page.emulateMediaFeatures([
 		{ name: 'prefers-color-scheme', value: 'light' }
@@ -718,6 +804,315 @@ try {
 	);
 	await clickButtonText('JOKER');
 	await waitForMainText('That card is already in your hand');
+
+	await page.evaluateOnNewDocument(() => {
+		navigator.canShare = () => true;
+		navigator.share = async (data) => {
+			window.__sharedFiles = Array.from(data.files ?? []).map((file) => ({
+				name: file.name,
+				type: file.type,
+				size: file.size
+			}));
+		};
+	});
+	await open('/jelly-gif/?lang=en');
+	await waitForMainText('Jelly GIF maker');
+	assert.deepEqual(
+		await page.$$eval('nav[aria-label="Breadcrumb"] li', (items) =>
+			items.map((item) => item.textContent?.trim())
+		),
+		['All tools', 'Jelly GIF maker'],
+		'Jelly GIF breadcrumb hierarchy is incomplete'
+	);
+	await injectJellyGifImage();
+	await page.waitForFunction(() => {
+		const canvas = document.querySelector('[role="img"] canvas');
+		if (
+			!(canvas instanceof HTMLCanvasElement) ||
+			canvas.width === 0 ||
+			canvas.height === 0
+		) {
+			return false;
+		}
+		const context = canvas.getContext('2d');
+		if (!context) return false;
+		return context
+			.getImageData(0, 0, canvas.width, canvas.height)
+			.data.some((value, index) => index % 4 === 3 && value !== 0);
+	});
+	await setValue('#jelly-gif-amplitude-range', '20');
+	assert.equal(
+		await page.$eval('#jelly-gif-amplitude', (element) => element.value),
+		'20',
+		'The Jelly GIF amplitude number input did not follow the range'
+	);
+	await setValue('#jelly-gif-amplitude', '999');
+	await page.$eval('#jelly-gif-amplitude', (element) =>
+		element.dispatchEvent(new Event('change', { bubbles: true }))
+	);
+	assert.equal(
+		await page.$eval('#jelly-gif-amplitude', (element) => element.value),
+		'64',
+		'The Jelly GIF amplitude number input did not snap to its clamped value'
+	);
+	await setValue('#jelly-gif-amplitude', '4');
+	await setValue('#jelly-gif-speed', '2');
+	await page.$eval('#jelly-gif-speed', (element) =>
+		element.dispatchEvent(new Event('change', { bubbles: true }))
+	);
+	const committedSpeed = await page.$eval('#jelly-gif-speed', (element) =>
+		Number(element.value)
+	);
+	const achievedSpeed = await jellyGifAchievedSpeed();
+	assert.equal(
+		committedSpeed.toFixed(2),
+		achievedSpeed.toFixed(2),
+		'The Jelly GIF speed target did not snap to the achieved speed'
+	);
+	assert.match(
+		await page.$eval(
+			'output[for="jelly-gif-speed"]',
+			(element) => element.textContent ?? ''
+		),
+		/frames/u,
+		'The Jelly GIF speed output did not include the frame count'
+	);
+	await setValue('#jelly-gif-delay', '10');
+	await page.$eval('#jelly-gif-delay', (element) =>
+		element.dispatchEvent(new Event('change', { bubbles: true }))
+	);
+	assert.equal(
+		await page.$eval('#jelly-gif-speed', (element) =>
+			Number(element.value).toFixed(2)
+		),
+		(await jellyGifAchievedSpeed()).toFixed(2),
+		'The Jelly GIF speed target did not match the achieved speed after changing the frame delay'
+	);
+	assert.match(
+		await page.$eval(
+			'output[for="jelly-gif-delay"]',
+			(element) => element.textContent ?? ''
+		),
+		/fps/u,
+		'The Jelly GIF frame-delay output did not include fps'
+	);
+	await page.click('[data-testid="jelly-gif-generate"]');
+	await page.waitForSelector('[data-testid="jelly-gif-result"]');
+	await page.waitForFunction(() => {
+		const image = document.querySelector('[data-testid="jelly-gif-result"]');
+		return (
+			image instanceof HTMLImageElement &&
+			image.complete &&
+			image.naturalWidth > 0
+		);
+	});
+	assert.deepEqual(
+		await page.$eval('[data-testid="jelly-gif-result"]', (element) => {
+			const image = /** @type {HTMLImageElement} */ (element);
+			return { width: image.naturalWidth, height: image.naturalHeight };
+		}),
+		{ width: 64 + 2 * 4, height: 48 + 2 * 4 },
+		'The generated GIF dimensions did not include the wobble margin'
+	);
+	assert.deepEqual(
+		await page.$eval('[data-testid="jelly-gif-download"]', (element) => ({
+			hasBlobUrl: element.getAttribute('href')?.startsWith('blob:') ?? false,
+			download: element.getAttribute('download')
+		})),
+		{ hasBlobUrl: true, download: 'jelly-sample.gif' },
+		'The Jelly GIF download metadata is incorrect'
+	);
+	await page.click('[data-testid="jelly-gif-share"]');
+	await page.waitForFunction(() => Array.isArray(window.__sharedFiles));
+	assert.deepEqual(
+		await page.evaluate(() => ({
+			count: window.__sharedFiles.length,
+			type: window.__sharedFiles[0]?.type,
+			hasBytes: window.__sharedFiles[0]?.size > 0,
+			isGifName: window.__sharedFiles[0]?.name.endsWith('.gif') ?? false
+		})),
+		{ count: 1, type: 'image/gif', hasBytes: true, isGifName: true },
+		'The Jelly GIF share payload is incorrect'
+	);
+	assert.deepEqual(
+		await page.$eval('[data-testid="jelly-gif-result"]', (element) => {
+			const image = /** @type {HTMLImageElement} */ (element);
+			const canvas = document.createElement('canvas');
+			canvas.width = image.naturalWidth;
+			canvas.height = image.naturalHeight;
+			const context = canvas.getContext('2d');
+			if (!context) throw new Error('Could not decode the generated GIF');
+			context.drawImage(image, 0, 0);
+			return {
+				centerAlpha: context.getImageData(
+					Math.floor(canvas.width / 2),
+					Math.floor(canvas.height / 2),
+					1,
+					1
+				).data[3],
+				marginAlpha: context.getImageData(1, 1, 1, 1).data[3]
+			};
+		}),
+		{ centerAlpha: 255, marginAlpha: 0 },
+		'The browser did not decode the generated GIF with the expected alpha values'
+	);
+	assert.match(
+		await page.$eval('[role="status"]', (element) => element.textContent ?? ''),
+		/GIF ready/u,
+		'The Jelly GIF completion status was not announced'
+	);
+
+	await page.select('#jelly-gif-background', 'color');
+	await setValue('#jelly-gif-video-background', '#ff0000');
+	let previousResultUrl = await page.$eval(
+		'[data-testid="jelly-gif-result"]',
+		(element) => element.getAttribute('src')
+	);
+	await page.click('[data-testid="jelly-gif-generate"]');
+	await page.waitForFunction(
+		(previousUrl) => {
+			const image = document.querySelector('[data-testid="jelly-gif-result"]');
+			return (
+				image instanceof HTMLImageElement &&
+				image.complete &&
+				image.getAttribute('src') !== previousUrl
+			);
+		},
+		{},
+		previousResultUrl
+	);
+	const redBackgroundPixel = await jellyGifResultPixel(1, 1);
+	assert(
+		redBackgroundPixel.a === 255 &&
+			redBackgroundPixel.r > 200 &&
+			redBackgroundPixel.g < 60,
+		`The Jelly GIF colour background pixel was incorrect: ${JSON.stringify(redBackgroundPixel)}`
+	);
+
+	await page.select('#jelly-gif-background', 'image');
+	await page.waitForSelector('#jelly-gif-background-file');
+	await injectJellyGifBackgroundImage();
+	await page.waitForFunction(() =>
+		(
+			document.querySelector('#jelly-gif-background-file')?.parentElement
+				?.textContent ?? ''
+		).includes('background.png')
+	);
+	previousResultUrl = await page.$eval(
+		'[data-testid="jelly-gif-result"]',
+		(element) => element.getAttribute('src')
+	);
+	await page.click('[data-testid="jelly-gif-generate"]');
+	await page.waitForFunction(
+		(previousUrl) => {
+			const image = document.querySelector('[data-testid="jelly-gif-result"]');
+			return (
+				image instanceof HTMLImageElement &&
+				image.complete &&
+				image.getAttribute('src') !== previousUrl
+			);
+		},
+		{},
+		previousResultUrl
+	);
+	const blueBackgroundPixel = await jellyGifResultPixel(1, 1);
+	assert(
+		blueBackgroundPixel.a === 255 &&
+			blueBackgroundPixel.b > 200 &&
+			blueBackgroundPixel.r < 60,
+		`The Jelly GIF image background pixel was incorrect: ${JSON.stringify(blueBackgroundPixel)}`
+	);
+	const recordVideoButton = await page.$('[data-testid="jelly-gif-record"]');
+	assert(
+		recordVideoButton,
+		'The Jelly GIF video record button is missing; headless Chromium should support MediaRecorder and canvas captureStream'
+	);
+	await recordVideoButton.click();
+	await page.waitForSelector('[data-testid="jelly-gif-video"]', {
+		timeout: 15_000
+	});
+	assert(
+		await page.$eval('[data-testid="jelly-gif-video"]', (element) =>
+			element.getAttribute('src')?.startsWith('blob:')
+		),
+		'The recorded Jelly GIF video did not use a blob URL'
+	);
+	await page.waitForFunction(() => {
+		const video = document.querySelector('[data-testid="jelly-gif-video"]');
+		return video instanceof HTMLVideoElement && video.readyState >= 1;
+	});
+	assert.deepEqual(
+		await page.$eval('[data-testid="jelly-gif-video"]', (element) => {
+			const video = /** @type {HTMLVideoElement} */ (element);
+			return { width: video.videoWidth, height: video.videoHeight };
+		}),
+		{ width: 64 + 2 * 4, height: 48 + 2 * 4 },
+		'The recorded Jelly GIF video dimensions did not include the wobble margin'
+	);
+	assert.match(
+		await page.$eval(
+			'[data-testid="jelly-gif-video-download"]',
+			(element) => element.getAttribute('download') ?? ''
+		),
+		/\.(?:webm|mp4)$/u,
+		'The Jelly GIF video download name has an unsupported extension'
+	);
+
+	await page.select('#site-language', 'ja');
+	await page.waitForFunction(
+		() =>
+			document.documentElement.lang === 'ja' &&
+			new URL(window.location.href).searchParams.get('lang') === 'ja'
+	);
+	await waitForMainText('ふにゃふにゃGIF');
+	assert(
+		await page.$('[data-testid="jelly-gif-result"]'),
+		'Changing language discarded the generated Jelly GIF'
+	);
+	await page.select('#site-language', 'en');
+	await page.waitForFunction(
+		() =>
+			document.documentElement.lang === 'en' &&
+			new URL(window.location.href).searchParams.get('lang') === 'en'
+	);
+
+	await page.emulateMediaFeatures([
+		{ name: 'prefers-reduced-motion', value: 'reduce' }
+	]);
+	await open('/jelly-gif/?lang=en');
+	await injectJellyGifImage();
+	await page.waitForSelector('[role="img"] canvas');
+	assert.equal(
+		await page.$eval('[data-testid="jelly-gif-preview-toggle"]', (element) =>
+			element.getAttribute('aria-pressed')
+		),
+		'false',
+		'Reduced motion did not disable Jelly GIF preview autoplay'
+	);
+	await waitForMainText(
+		'Autoplay is off because your system prefers reduced motion.'
+	);
+	await page.click('[data-testid="jelly-gif-preview-toggle"]');
+	assert.equal(
+		await page.$eval('[data-testid="jelly-gif-preview-toggle"]', (element) =>
+			element.getAttribute('aria-pressed')
+		),
+		'true',
+		'The Jelly GIF preview could not be explicitly enabled'
+	);
+	await page.emulateMediaFeatures([]);
+
+	await page.setViewport({ width: 320, height: 800, deviceScaleFactor: 1 });
+	await open('/jelly-gif/?lang=en');
+	assert(
+		await page.evaluate(
+			() =>
+				document.documentElement.scrollWidth <=
+				document.documentElement.clientWidth + 1
+		),
+		'Jelly GIF maker overflows a 320px viewport'
+	);
+	await page.setViewport({ width: 800, height: 600, deviceScaleFactor: 1 });
 
 	// Verify the fallback itself remains useful even if the hosting platform adds
 	// unrelated scripts (for example, Cloudflare security instrumentation).

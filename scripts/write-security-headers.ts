@@ -58,8 +58,9 @@ const directives = [
 	"form-action 'self'",
 	"frame-ancestors 'none'",
 	"frame-src 'none'",
-	"img-src 'self' data:",
+	"img-src 'self' data: blob:",
 	"manifest-src 'self'",
+	"media-src 'self' blob:",
 	"object-src 'none'",
 	[
 		"script-src 'self' https://static.cloudflareinsights.com",

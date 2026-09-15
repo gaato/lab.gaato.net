@@ -23,6 +23,8 @@ export const DEFAULT_SETTINGS: WobbleSettings = {
 
 export const MAX_SOURCE_EDGE = 512;
 export const MAX_PIXELS_PER_JOB = 512 * 512 * 60;
+export const MIN_SPEED_HZ = 0.25;
+export const MAX_SPEED_HZ = 5;
 
 function normalizedNumber(
 	value: unknown,
@@ -91,6 +93,17 @@ export function estimateGifBytes(
 	frameCount: number
 ): number {
 	return Math.round(0.45 * width * height * frameCount + 800);
+}
+
+export function frameCountForSpeed(
+	delayCentiseconds: number,
+	hz: number
+): number {
+	return Math.min(60, Math.max(4, Math.round(100 / delayCentiseconds / hz)));
+}
+
+export function speedHz(settings: WobbleSettings): number {
+	return 100 / (settings.delayCentiseconds * settings.frameCount);
 }
 
 export function loopDurationMs(settings: WobbleSettings): number {
