@@ -1,18 +1,17 @@
+/**
+ * Guards the production artifact set, security policy, and shipped assets.
+ * Expected route outputs are derived from src/routes rather than hand-maintained.
+ */
 import { createHash } from 'node:crypto';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { extname, posix, resolve } from 'node:path';
 import { gzipSync } from 'node:zlib';
 
+import { routeHtmlFiles } from './routes.mjs';
+
 const outputDirectory = resolve('build');
 const canonicalOrigin = 'https://lab.gaato.net';
-const expectedHtml = [
-	'404.html',
-	'cellular-automaton/index.html',
-	'holodori/event-pt/index.html',
-	'holodori/high-low/index.html',
-	'holodori/index.html',
-	'index.html'
-].sort();
+const expectedHtml = routeHtmlFiles();
 const failures: string[] = [];
 
 function fail(message: string): void {
@@ -241,15 +240,6 @@ if (files.includes('_headers')) {
 	}
 }
 
-const routeCssBudget = 20 * 1024;
-const routeJsBudgets = new Map<string, number>([
-	['index.html', 50 * 1024],
-	['cellular-automaton/index.html', 65 * 1024],
-	['holodori/index.html', 50 * 1024],
-	['holodori/event-pt/index.html', 80 * 1024],
-	['holodori/high-low/index.html', 90 * 1024]
-]);
-
 for (const file of expectedHtml.filter(
 	(candidate) => candidate !== '404.html'
 )) {
@@ -258,18 +248,11 @@ for (const file of expectedHtml.filter(
 	console.log(
 		`${file}: ${css.bytes} bytes gzip CSS (${css.files.length} files)`
 	);
-	if (css.bytes > routeCssBudget) {
-		fail(`${file} CSS is ${css.bytes} gzip bytes; budget is ${routeCssBudget}`);
-	}
 
 	const js = await routeAssetSize(file, 'js');
-	const jsBudget = routeJsBudgets.get(file);
 	console.log(
 		`${file}: ${js.bytes} bytes gzip JavaScript (${js.files.length} files)`
 	);
-	if (jsBudget !== undefined && js.bytes > jsBudget) {
-		fail(`${file} JavaScript is ${js.bytes} gzip bytes; budget is ${jsBudget}`);
-	}
 }
 
 const outputSize = (

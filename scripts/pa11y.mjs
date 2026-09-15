@@ -1,14 +1,20 @@
 import pa11y from 'pa11y';
 
+import { listRoutes } from './routes.mjs';
+
 const baseUrl = new URL(process.env.SITE_URL ?? 'http://127.0.0.1:4173');
 const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+const eventPtQuery = 'current=1144899&target=1145141&bonus=20&passport=1';
+const routes = listRoutes();
 const paths = [
-	'/',
-	'/cellular-automaton/',
-	'/cellular-automaton/?lang=ja',
-	'/holodori/',
-	'/holodori/event-pt/?current=1144899&target=1145141&bonus=20&passport=1',
-	'/holodori/high-low/'
+	...routes.map((route) =>
+		route === '/holodori/event-pt/' ? `${route}?${eventPtQuery}` : route
+	),
+	...routes.map((route) =>
+		route === '/holodori/event-pt/'
+			? `${route}?${eventPtQuery}&lang=ja`
+			: `${route}?lang=ja`
+	)
 ];
 const failures = [];
 

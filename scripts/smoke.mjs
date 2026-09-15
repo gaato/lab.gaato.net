@@ -1,3 +1,5 @@
+import { listRoutes } from './routes.mjs';
+
 const baseUrl = new URL(process.env.SITE_URL ?? 'http://127.0.0.1:4173');
 
 const checks = [
@@ -7,6 +9,7 @@ const checks = [
 		expectedTexts: [
 			'lab.gaato.net',
 			'Cellular Automaton',
+			'Jelly GIF maker',
 			'hololive Dreams: Event Pt calculator',
 			'hololive Dreams: High &amp; Low hand advisor'
 		],
@@ -20,6 +23,11 @@ const checks = [
 			'Life-like B/S notation',
 			'Step one generation'
 		]
+	},
+	{
+		path: '/jelly-gif/',
+		status: 200,
+		expectedTexts: ['Jelly GIF maker', 'Image file', 'Generate GIF']
 	},
 	{
 		path: '/holodori/',
@@ -59,7 +67,7 @@ const checks = [
 
 const failures = [];
 
-for (const check of checks) {
+async function runCheck(check, checkContent = true) {
 	const url = new URL(check.path, baseUrl);
 	let response;
 
@@ -67,7 +75,7 @@ for (const check of checks) {
 		response = await fetch(url, { signal: AbortSignal.timeout(10_000) });
 	} catch (error) {
 		failures.push(`${url.pathname}: request failed: ${error.message}`);
-		continue;
+		return;
 	}
 
 	const contentType = response.headers.get('content-type') ?? '';
@@ -89,30 +97,40 @@ for (const check of checks) {
 	if (!hasDocument)
 		failures.push(`${url.pathname}: response is not a complete HTML document`);
 	if (!hasHeading) failures.push(`${url.pathname}: response has no h1`);
-	const documentLanguage = body.match(
-		/<html[^>]*\blang=["']([^"']+)["']/iu
-	)?.[1];
-	if (documentLanguage !== 'en') {
-		failures.push(
-			`${url.pathname}: expected static document language en, got ${documentLanguage ?? 'none'}`
-		);
-	}
-	for (const expectedText of check.expectedTexts) {
-		if (!body.includes(expectedText)) {
+	if (checkContent) {
+		const documentLanguage = body.match(
+			/<html[^>]*\blang=["']([^"']+)["']/iu
+		)?.[1];
+		if (documentLanguage !== 'en') {
 			failures.push(
-				`${url.pathname}: response does not contain ${JSON.stringify(expectedText)}`
+				`${url.pathname}: expected static document language en, got ${documentLanguage ?? 'none'}`
 			);
 		}
-	}
-	for (const unexpectedText of check.unexpectedTexts ?? []) {
-		if (body.includes(unexpectedText)) {
-			failures.push(
-				`${url.pathname}: response unexpectedly contains ${JSON.stringify(unexpectedText)}`
-			);
+		for (const expectedText of check.expectedTexts) {
+			if (!body.includes(expectedText)) {
+				failures.push(
+					`${url.pathname}: response does not contain ${JSON.stringify(expectedText)}`
+				);
+			}
+		}
+		for (const unexpectedText of check.unexpectedTexts ?? []) {
+			if (body.includes(unexpectedText)) {
+				failures.push(
+					`${url.pathname}: response unexpectedly contains ${JSON.stringify(unexpectedText)}`
+				);
+			}
 		}
 	}
 
 	console.log(`${response.status} ${url.pathname}${url.search}`);
+}
+
+for (const path of listRoutes()) {
+	await runCheck({ path, status: 200 }, false);
+}
+
+for (const check of checks) {
+	await runCheck(check);
 }
 
 if (failures.length > 0) {
