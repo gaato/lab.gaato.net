@@ -3,7 +3,7 @@
 [![CI](https://github.com/gaato/lab.gaato.net/actions/workflows/ci.yml/badge.svg)](https://github.com/gaato/lab.gaato.net/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/gaato/lab.gaato.net/actions/workflows/codeql.yml/badge.svg)](https://github.com/gaato/lab.gaato.net/actions/workflows/codeql.yml)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Flab.gaato.net)](https://lab.gaato.net)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/gaato/lab.gaato.net)
+[![Ask DeepWiki](https://img.shields.io/badge/Ask-DeepWiki-blue)](https://deepwiki.com/gaato/lab.gaato.net)
 [![License](https://img.shields.io/github/license/gaato/lab.gaato.net)](LICENSE)
 
 Source code for [lab.gaato.net](https://lab.gaato.net), a collection of small calculators and web experiments.
