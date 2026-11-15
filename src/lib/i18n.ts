@@ -31,6 +31,7 @@ const ja = {
 	'home.collection': 'ツール',
 	'home.cellularAutomatonTitle': 'セル・オートマトン',
 	'home.jellyGifTitle': 'ふにゃふにゃGIF',
+	'home.discordVideoTitle': 'Discord向け動画圧縮',
 	'home.eventPointTitle': 'ホロドリ：イベントPt調整',
 	'home.highLowTitle': 'ホロドリ：ハイ&ロー手札判断',
 	'automaton.title': 'セル・オートマトン | lab.gaato.net',
@@ -129,6 +130,75 @@ const ja = {
 		'この設定では画像が大きすぎます。フレーム数か画像サイズを小さくしてください。',
 	'jellyGif.pixelUnit': 'px',
 	'jellyGif.empty': '画像を選ぶと、ここにプレビューが表示されます。',
+	'discordVideo.title': 'Discord向け動画圧縮 | lab.gaato.net',
+	'discordVideo.description':
+		'Discordへの投稿サイズに合わせて、動画をブラウザー内でMP4に圧縮します。',
+	'discordVideo.heading': 'Discord向け動画圧縮',
+	'discordVideo.summary':
+		'動画をDiscordに投稿できるサイズのMP4へ圧縮します。動画はアップロードされず、すべての処理はお使いのブラウザー内で行われます。',
+	'discordVideo.unofficial':
+		'Discord非公式のツールです。Discord Inc.とは関係ありません。',
+	'discordVideo.fileLabel': '動画ファイル',
+	'discordVideo.dropHint':
+		'ドラッグ＆ドロップや貼り付けでも選択できます。MP4またはMOVに対応しています。',
+	'discordVideo.inspecting': '動画を確認しています…',
+	'discordVideo.sourceInfo':
+		'{name} · {size} · {duration}秒 · {width}×{height} · {codec}',
+	'discordVideo.audioInfo': '音声：{codec}、{channels}ch、{rate} Hz',
+	'discordVideo.noAudio': '音声なし',
+	'discordVideo.settings': '圧縮設定',
+	'discordVideo.target': '目標サイズ',
+	'discordVideo.target20': '20 MiB — 通常（無料アカウント）',
+	'discordVideo.target50': '50 MiB — Nitro Basic / サーバーブースト レベル2',
+	'discordVideo.target100': '100 MiB — サーバーブースト レベル3',
+	'discordVideo.targetCustom': 'カスタム',
+	'discordVideo.customTarget': 'カスタムサイズ（MiB）',
+	'discordVideo.customTargetHint': '0.1 MiB以上。小数も入力できます。',
+	'discordVideo.trim': '切り抜き',
+	'discordVideo.trimStart': '開始（秒）',
+	'discordVideo.trimEnd': '終了（秒）',
+	'discordVideo.trimError':
+		'開始は0以上、終了は動画の長さ以下で、開始より後にしてください。',
+	'discordVideo.keepAudio': '音声を残す',
+	'discordVideo.plan': '圧縮予定',
+	'discordVideo.planVideo': '{width}×{height}、{fps} fps、映像 {bitrate} kbps',
+	'discordVideo.planAudioNone': '音声なし',
+	'discordVideo.planAudioCopy': '音声 {bitrate} kbps以下（再圧縮なし）',
+	'discordVideo.planAudioEncode': '音声 {codec} {bitrate} kbpsへ再圧縮',
+	'discordVideo.tooSmall':
+		'この目標サイズでは画質の最低ラインを下回ります。目安として{size}以上にしてください。',
+	'discordVideo.alreadyFits':
+		'元の動画はすでに選択した目標サイズ以下です。必要ならそのまま圧縮できます。',
+	'discordVideo.compress': '動画を圧縮',
+	'discordVideo.cancel': 'キャンセル',
+	'discordVideo.phaseInspect': '動画を確認中',
+	'discordVideo.phaseAudio': '音声を処理中',
+	'discordVideo.phaseDecode': '映像を読み込み中',
+	'discordVideo.phaseEncode': '映像を圧縮中',
+	'discordVideo.phaseMux': 'MP4を仕上げ中',
+	'discordVideo.progress': '{phase}… {percent}%',
+	'discordVideo.done': '圧縮が完了しました（{size} / 目標 {target}）',
+	'discordVideo.exceeded':
+		'3回調整しましたが目標サイズを超えました。最も小さい結果（{size}）を表示しています。',
+	'discordVideo.preview': '圧縮した動画のプレビュー',
+	'discordVideo.download': 'MP4をダウンロード',
+	'discordVideo.share': '動画を共有',
+	'discordVideo.shareFailed': '動画を共有できませんでした。',
+	'discordVideo.unsupported':
+		'このブラウザーでは動画圧縮を利用できません。最新版のChromium系ブラウザーをお試しください。',
+	'discordVideo.containerUnsupported':
+		'この動画形式には対応していません。MP4またはMOVを選んでください。',
+	'discordVideo.fragmentedUnsupported':
+		'分割MP4には対応していません。通常のMP4またはMOVを選んでください。',
+	'discordVideo.codecUnsupported':
+		'この動画のコーデック（{codec}）には対応していません。',
+	'discordVideo.decodeUnsupported':
+		'このブラウザーでは{codec}を再生用に読み込めません。',
+	'discordVideo.encodeUnsupported':
+		'このブラウザーでは{codec}への圧縮に対応していません。',
+	'discordVideo.invalidFile':
+		'動画を読み込めませんでした。別のMP4またはMOVをお試しください。',
+	'discordVideo.cancelled': '圧縮をキャンセルしました。',
 	'holodori.title': 'ホロドリ | lab.gaato.net',
 	'holodori.description': 'ホロドリのツール一覧。',
 	'holodori.hashtag': '#ホロドリ',
@@ -356,6 +426,7 @@ const en: Catalog = {
 	'home.collection': 'Tools',
 	'home.cellularAutomatonTitle': 'Cellular Automaton',
 	'home.jellyGifTitle': 'Jelly GIF maker',
+	'home.discordVideoTitle': 'Video compressor for Discord',
 	'home.eventPointTitle': 'hololive Dreams: Event Pt calculator',
 	'home.highLowTitle': 'hololive Dreams: High & Low hand advisor',
 	'automaton.title': 'Cellular Automaton | lab.gaato.net',
@@ -452,6 +523,74 @@ const en: Catalog = {
 		'This image is too large for these settings. Reduce the frame count or image size.',
 	'jellyGif.pixelUnit': 'px',
 	'jellyGif.empty': 'Choose an image to see a preview here.',
+	'discordVideo.title': 'Video compressor for Discord | lab.gaato.net',
+	'discordVideo.description':
+		'Compress a video to an MP4 sized for Discord, entirely in your browser.',
+	'discordVideo.heading': 'Video compressor for Discord',
+	'discordVideo.summary':
+		'Compress a video to an MP4 that fits a Discord upload limit. Your video is never uploaded; all processing stays locally in your browser.',
+	'discordVideo.unofficial':
+		'This is an unofficial tool and is not affiliated with Discord Inc.',
+	'discordVideo.fileLabel': 'Video file',
+	'discordVideo.dropHint':
+		'You can also drag and drop or paste a video. MP4 and MOV are supported.',
+	'discordVideo.inspecting': 'Inspecting video…',
+	'discordVideo.sourceInfo':
+		'{name} · {size} · {duration} s · {width}×{height} · {codec}',
+	'discordVideo.audioInfo': 'Audio: {codec}, {channels} ch, {rate} Hz',
+	'discordVideo.noAudio': 'No audio',
+	'discordVideo.settings': 'Compression settings',
+	'discordVideo.target': 'Target size',
+	'discordVideo.target20': '20 MiB — default (free accounts)',
+	'discordVideo.target50': '50 MiB — Nitro Basic / server boost level 2',
+	'discordVideo.target100': '100 MiB — server boost level 3',
+	'discordVideo.targetCustom': 'Custom',
+	'discordVideo.customTarget': 'Custom size (MiB)',
+	'discordVideo.customTargetHint': 'At least 0.1 MiB; decimals are allowed.',
+	'discordVideo.trim': 'Trim',
+	'discordVideo.trimStart': 'Start (seconds)',
+	'discordVideo.trimEnd': 'End (seconds)',
+	'discordVideo.trimError':
+		'Start must be at least 0; end must be later than start and no later than the video duration.',
+	'discordVideo.keepAudio': 'Keep audio',
+	'discordVideo.plan': 'Compression plan',
+	'discordVideo.planVideo': '{width}×{height}, {fps} fps, video {bitrate} kbps',
+	'discordVideo.planAudioNone': 'No audio',
+	'discordVideo.planAudioCopy':
+		'Audio up to {bitrate} kbps (copied without re-encoding)',
+	'discordVideo.planAudioEncode':
+		'Audio re-encoded as {codec} at {bitrate} kbps',
+	'discordVideo.tooSmall':
+		'This target is below the quality floor. Use about {size} or more.',
+	'discordVideo.alreadyFits':
+		'The source already fits the selected target. You can still compress it.',
+	'discordVideo.compress': 'Compress video',
+	'discordVideo.cancel': 'Cancel',
+	'discordVideo.phaseInspect': 'Inspecting video',
+	'discordVideo.phaseAudio': 'Processing audio',
+	'discordVideo.phaseDecode': 'Reading video',
+	'discordVideo.phaseEncode': 'Compressing video',
+	'discordVideo.phaseMux': 'Finishing MP4',
+	'discordVideo.progress': '{phase}… {percent}%',
+	'discordVideo.done': 'Compression finished ({size} / {target} target)',
+	'discordVideo.exceeded':
+		'The result was still over target after three attempts. Showing the smallest result ({size}).',
+	'discordVideo.preview': 'Compressed video preview',
+	'discordVideo.download': 'Download MP4',
+	'discordVideo.share': 'Share video',
+	'discordVideo.shareFailed': 'The video could not be shared.',
+	'discordVideo.unsupported':
+		'Video compression is unavailable in this browser. Try a current Chromium-based browser.',
+	'discordVideo.containerUnsupported':
+		'This container is unsupported. Choose an MP4 or MOV file.',
+	'discordVideo.fragmentedUnsupported':
+		'Fragmented MP4 is unsupported. Choose a regular MP4 or MOV file.',
+	'discordVideo.codecUnsupported': 'The video codec ({codec}) is unsupported.',
+	'discordVideo.decodeUnsupported': 'This browser cannot decode {codec}.',
+	'discordVideo.encodeUnsupported': 'This browser cannot encode {codec}.',
+	'discordVideo.invalidFile':
+		'The video could not be read. Try another MP4 or MOV file.',
+	'discordVideo.cancelled': 'Compression cancelled.',
 	'holodori.title': 'hololive Dreams | lab.gaato.net',
 	'holodori.description': 'Tools for hololive Dreams.',
 	'holodori.hashtag': '#holodori',

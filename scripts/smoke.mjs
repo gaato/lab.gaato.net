@@ -10,6 +10,7 @@ const checks = [
 			'lab.gaato.net',
 			'Cellular Automaton',
 			'Jelly GIF maker',
+			'Video compressor for Discord',
 			'hololive Dreams: Event Pt calculator',
 			'hololive Dreams: High &amp; Low hand advisor'
 		],
@@ -28,6 +29,15 @@ const checks = [
 		path: '/jelly-gif/',
 		status: 200,
 		expectedTexts: ['Jelly GIF maker', 'Image file', 'Generate GIF']
+	},
+	{
+		path: '/discord-video/',
+		status: 200,
+		expectedTexts: [
+			'Video compressor for Discord',
+			'Video file',
+			'Your video is never uploaded'
+		]
 	},
 	{
 		path: '/holodori/',

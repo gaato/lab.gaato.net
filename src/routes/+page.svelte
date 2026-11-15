@@ -31,6 +31,11 @@
 			</a>
 		</li>
 		<li>
+			<a class="py-4 text-base" href="/discord-video/?lang={$locale}">
+				{translate($locale, 'home.discordVideoTitle')}
+			</a>
+		</li>
+		<li>
 			<a class="py-4 text-base" href="/holodori/event-pt/?lang={$locale}">
 				{translate($locale, 'home.eventPointTitle')}
 			</a>

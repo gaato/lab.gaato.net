@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 
 import puppeteer from 'puppeteer';
 
@@ -140,6 +141,28 @@ async function injectJellyGifImage() {
 		input.files = dataTransfer.files;
 		input.dispatchEvent(new Event('change', { bubbles: true }));
 	});
+}
+
+async function injectDiscordVideo(name = 'h264-aac.mp4') {
+	const fixture = await readFile(
+		new URL(`../src/lib/media/fixtures/${name}`, import.meta.url)
+	);
+	await page.evaluate(
+		({ bytes, name }) => {
+			const file = new File([Uint8Array.from(bytes)], name, {
+				type: 'video/mp4'
+			});
+			const dataTransfer = new DataTransfer();
+			dataTransfer.items.add(file);
+			const input = document.querySelector('#discord-video-file');
+			if (!(input instanceof HTMLInputElement)) {
+				throw new Error('Could not find the Discord video file input');
+			}
+			input.files = dataTransfer.files;
+			input.dispatchEvent(new Event('change', { bubbles: true }));
+		},
+		{ bytes: Array.from(fixture), name }
+	);
 }
 
 async function injectJellyGifBackgroundImage() {
@@ -1113,6 +1136,106 @@ try {
 		'Jelly GIF maker overflows a 320px viewport'
 	);
 	await page.setViewport({ width: 800, height: 600, deviceScaleFactor: 1 });
+
+	await open('/discord-video/?lang=en');
+	await injectDiscordVideo();
+	await page.waitForSelector('[data-testid="discord-video-source-info"]');
+	await page.waitForSelector('[data-testid="discord-video-already-fits"]');
+	assert.match(
+		await mainText(),
+		/The source already fits the selected target/u,
+		'The already-fits message was not shown for a large target'
+	);
+	await page.select('#discord-video-target', 'custom');
+	await page.waitForSelector('#discord-video-custom-target');
+	await setValue('#discord-video-custom-target', '0.03');
+	await page.click('[data-testid="discord-video-compress"]');
+	await page.waitForSelector('[data-testid="discord-video-result"]', {
+		timeout: 60_000
+	});
+	await page.waitForFunction(
+		() => {
+			const video = document.querySelector(
+				'[data-testid="discord-video-result"]'
+			);
+			return video instanceof HTMLVideoElement && video.readyState >= 1;
+		},
+		{ timeout: 15_000 }
+	);
+	const discordResult = await page.$eval(
+		'[data-testid="discord-video-result"]',
+		(element) => {
+			const video = /** @type {HTMLVideoElement} */ (element);
+			return {
+				bytes: Number(video.dataset.resultBytes),
+				duration: video.duration,
+				width: video.videoWidth
+			};
+		}
+	);
+	assert(
+		discordResult.bytes > 0 &&
+			discordResult.bytes <= Math.floor(0.03 * 1024 * 1024),
+		`Discord video result exceeded the target: ${discordResult.bytes} bytes`
+	);
+	assert(
+		Math.abs(discordResult.duration - 2) < 0.2,
+		`Discord video duration was ${discordResult.duration}`
+	);
+	assert(
+		discordResult.width > 0,
+		'Discord video result had no video dimensions'
+	);
+	assert.match(
+		await page.$eval(
+			'[data-testid="discord-video-download"]',
+			(element) => element.getAttribute('download') ?? ''
+		),
+		/-discord\.mp4$/u,
+		'The Discord video download name was incorrect'
+	);
+
+	await open('/discord-video/?lang=en');
+	await injectDiscordVideo('vfr-jitter.mp4');
+	await page.waitForSelector('[data-testid="discord-video-source-info"]');
+	await page.waitForFunction(() => {
+		const button = document.querySelector(
+			'[data-testid="discord-video-compress"]'
+		);
+		return button instanceof HTMLButtonElement && !button.disabled;
+	});
+	assert(
+		await page.$eval(
+			'#discord-video-trim-end',
+			(element) => element.validity.valid
+		),
+		'The exact VFR duration failed native input validation'
+	);
+	await page.click('[data-testid="discord-video-compress"]');
+	await page.waitForFunction(
+		() => {
+			const video = document.querySelector(
+				'[data-testid="discord-video-result"]'
+			);
+			return video instanceof HTMLVideoElement && video.readyState >= 1;
+		},
+		{ timeout: 60_000 }
+	);
+	const vfrResult = await page.$eval(
+		'[data-testid="discord-video-result"]',
+		(element) => ({
+			bytes: Number(element.dataset.resultBytes),
+			duration: element.duration
+		})
+	);
+	assert(
+		vfrResult.bytes > 0 && vfrResult.bytes <= 20 * 1024 * 1024,
+		`VFR result exceeded the target: ${vfrResult.bytes} bytes`
+	);
+	assert(
+		Math.abs(vfrResult.duration - 2.5) < 0.05,
+		`VFR result duration was ${vfrResult.duration}`
+	);
 
 	// Verify the fallback itself remains useful even if the hosting platform adds
 	// unrelated scripts (for example, Cloudflare security instrumentation).
