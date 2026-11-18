@@ -1237,6 +1237,34 @@ try {
 		`VFR result duration was ${vfrResult.duration}`
 	);
 
+	// Loading a file is announced, and cancelling from the keyboard keeps focus
+	// on the form instead of dropping it with the removed cancel button.
+	await open('/discord-video/?lang=en');
+	await injectDiscordVideo('vfr-jitter.mp4');
+	await page.waitForSelector('[data-testid="discord-video-source-info"]');
+	assert.match(
+		await page.$eval(
+			'[data-testid="discord-video-status"]',
+			(element) => element.textContent ?? ''
+		),
+		/Loaded vfr-jitter\.mp4\./u,
+		'Loading the Discord video was not announced'
+	);
+	await page.click('[data-testid="discord-video-compress"]');
+	await page.waitForSelector('[data-testid="discord-video-cancel"]');
+	await page.focus('[data-testid="discord-video-cancel"]');
+	await page.keyboard.press('Enter');
+	await page.waitForFunction(
+		() => !document.querySelector('[data-testid="discord-video-cancel"]'),
+		{ timeout: 60_000 }
+	);
+	await page.waitForFunction(
+		() =>
+			document.activeElement?.getAttribute('data-testid') ===
+			'discord-video-compress',
+		{ timeout: 5_000 }
+	);
+
 	// Verify the fallback itself remains useful even if the hosting platform adds
 	// unrelated scripts (for example, Cloudflare security instrumentation).
 	assert.deepEqual(

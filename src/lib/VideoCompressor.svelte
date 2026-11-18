@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy, onMount, tick } from 'svelte';
 	import VideoWorker from '#lib/media/video.worker.ts?worker';
 	import { locale, translate, type MessageKey } from '#lib/i18n.ts';
 	import { planEncode, type EncodePlan } from '#lib/media/plan.ts';
@@ -40,6 +40,8 @@
 	let requestSequence = 0;
 	let activeRequestId: number | null = null;
 	let resultBlob: Blob | null = null;
+	let compressButton = $state<HTMLButtonElement | null>(null);
+	let cancelButton = $state<HTMLButtonElement | null>(null);
 
 	const targetMiB = $derived(
 		targetPreset === 'custom' ? customTargetMiB : Number(targetPreset)
@@ -88,7 +90,8 @@
 		worker.onmessage = handleWorkerMessage;
 		worker.onerror = () => {
 			inspecting = false;
-			compressing = false;
+			endCompression();
+			statusKey = null;
 			errorKey = 'discordVideo.invalidFile';
 		};
 
@@ -184,7 +187,7 @@
 		sourceInfo = null;
 		inspecting = true;
 		errorKey = null;
-		statusKey = null;
+		statusKey = 'discordVideo.inspecting';
 		const requestId = ++requestSequence;
 		activeRequestId = requestId;
 		worker?.postMessage({ type: 'inspect', requestId, file });
@@ -203,6 +206,7 @@
 			trimEnd = message.info.durationUs / 1_000_000;
 			inspecting = false;
 			progress = null;
+			statusKey = 'discordVideo.inspected';
 			return;
 		}
 		if (message.type === 'plan') {
@@ -210,7 +214,7 @@
 			return;
 		}
 		if (message.type === 'result') {
-			compressing = false;
+			endCompression();
 			progress = null;
 			resultPlan = message.plan;
 			exceededTarget = message.exceededTarget;
@@ -226,13 +230,23 @@
 		}
 		if (message.type === 'error') {
 			inspecting = false;
-			compressing = false;
+			endCompression();
 			progress = null;
 			errorKey = errorMessageKey(message.error.code);
 			errorDetail = message.error.detail ?? '';
-			if (message.error.code === 'cancelled')
-				statusKey = 'discordVideo.cancelled';
+			statusKey =
+				message.error.code === 'cancelled' ? 'discordVideo.cancelled' : null;
 		}
+	}
+
+	// The cancel button only exists while compressing. If it has focus when the
+	// job ends, removing it would drop focus to the document body, so hand focus
+	// to the compress button, which stays in place.
+	function endCompression(): void {
+		const cancelHadFocus =
+			cancelButton !== null && document.activeElement === cancelButton;
+		compressing = false;
+		if (cancelHadFocus) void tick().then(() => compressButton?.focus());
 	}
 
 	function errorMessageKey(code: VideoWorkerErrorCode): MessageKey {
@@ -606,12 +620,19 @@
 						class="btn btn-primary"
 						type="submit"
 						data-testid="discord-video-compress"
+						bind:this={compressButton}
 						disabled={compressing || !trimValid || !browserSupported}
 					>
 						{translate($locale, 'discordVideo.compress')}
 					</button>
 					{#if compressing}
-						<button class="btn btn-ghost" type="button" onclick={cancel}>
+						<button
+							class="btn btn-ghost"
+							type="button"
+							data-testid="discord-video-cancel"
+							bind:this={cancelButton}
+							onclick={cancel}
+						>
 							{translate($locale, 'discordVideo.cancel')}
 						</button>
 					{/if}
@@ -642,9 +663,16 @@
 		</div>
 	{/if}
 
-	<div class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+	<div
+		class="sr-only"
+		role="status"
+		aria-live="polite"
+		aria-atomic="true"
+		data-testid="discord-video-status"
+	>
 		{statusKey
 			? translate($locale, statusKey, {
+					name: sourceFile?.name ?? '',
 					size: formatBytes(resultBytes),
 					target: formatBytes(targetBytes)
 				})

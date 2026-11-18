@@ -142,6 +142,7 @@ const ja = {
 	'discordVideo.dropHint':
 		'ドラッグ＆ドロップや貼り付けでも選択できます。MP4またはMOVに対応しています。',
 	'discordVideo.inspecting': '動画を確認しています…',
+	'discordVideo.inspected': '{name}を読み込みました。',
 	'discordVideo.sourceInfo':
 		'{name} · {size} · {duration}秒 · {width}×{height} · {codec}',
 	'discordVideo.audioInfo': '音声：{codec}、{channels}ch、{rate} Hz',
@@ -535,6 +536,7 @@ const en: Catalog = {
 	'discordVideo.dropHint':
 		'You can also drag and drop or paste a video. MP4 and MOV are supported.',
 	'discordVideo.inspecting': 'Inspecting video…',
+	'discordVideo.inspected': 'Loaded {name}.',
 	'discordVideo.sourceInfo':
 		'{name} · {size} · {duration} s · {width}×{height} · {codec}',
 	'discordVideo.audioInfo': 'Audio: {codec}, {channels} ch, {rate} Hz',
