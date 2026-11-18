@@ -621,7 +621,8 @@
 						type="submit"
 						data-testid="discord-video-compress"
 						bind:this={compressButton}
-						disabled={compressing || !trimValid || !browserSupported}
+						disabled={!trimValid || !browserSupported}
+						aria-disabled={compressing}
 					>
 						{translate($locale, 'discordVideo.compress')}
 					</button>

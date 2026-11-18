@@ -1149,10 +1149,20 @@ try {
 	await page.select('#discord-video-target', 'custom');
 	await page.waitForSelector('#discord-video-custom-target');
 	await setValue('#discord-video-custom-target', '0.03');
-	await page.click('[data-testid="discord-video-compress"]');
+	// Start from the keyboard: a focused button that becomes disabled drops
+	// focus to the body, so the button must stay focusable while it is busy.
+	await page.focus('[data-testid="discord-video-compress"]');
+	await page.keyboard.press('Enter');
 	await page.waitForSelector('[data-testid="discord-video-result"]', {
 		timeout: 60_000
 	});
+	assert.equal(
+		await page.evaluate(() =>
+			document.activeElement?.getAttribute('data-testid')
+		),
+		'discord-video-compress',
+		'Compressing from the keyboard dropped focus'
+	);
 	await page.waitForFunction(
 		() => {
 			const video = document.querySelector(
