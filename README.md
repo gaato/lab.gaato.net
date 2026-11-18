@@ -23,6 +23,12 @@ To run the full verification suite:
 bun run verify
 ```
 
+### Ignored audit advisories
+
+`bun run audit` (run in CI) ignores these advisories. Remove an entry once its condition is met.
+
+- [GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf) (picomatch ReDoS, CVE-2026-112366): no patched release exists yet and the advisory is disputed ([micromatch/picomatch#234](https://github.com/micromatch/picomatch/issues/234)). It requires attacker-controlled glob patterns, but picomatch is only reached through dev tooling (Vite, Vitest, svelte-check) with patterns from this repository, and it is not part of the static site. Remove the ignore when picomatch ships a fix or the advisory is withdrawn.
+
 ## License
 
 Original code, tests, scripts, UI copy, documentation, and SVG files authored for this repository are licensed under the [Blue Oak Model License 1.0.0](LICENSE) (`BlueOak-1.0.0`). Third-party material is not covered. See [NOTICE.md](NOTICE.md) and [THIRD_PARTY_NOTICES.txt](static/THIRD_PARTY_NOTICES.txt).

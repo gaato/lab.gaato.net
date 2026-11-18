@@ -18,7 +18,7 @@
 		"format": "prettier --write .",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"audit": "bun audit --audit-level=high",
+		"audit": "bun audit --audit-level=high --ignore=GHSA-fc5q-39xc-vjpf",
 		"check:artifacts": "bun scripts/check-artifacts.ts",
 		"check:licenses": "bun scripts/check-third-party-notices.ts",
 		"smoke": "bun scripts/smoke.mjs",
