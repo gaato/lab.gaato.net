@@ -4,3 +4,4 @@ coverage
 node_modules
 .pa11yci
 LICENSE
+src/lib/tasuki/share.js
