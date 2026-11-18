@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { afterNavigate, goto } from '$app/navigation';
-	import ToolShare from '$lib/ToolShare.svelte';
+	import ToolShare from '#lib/ToolShare.svelte';
 	import {
 		MAX_JUMPS,
 		MAX_MAX_RUNS,
@@ -11,8 +11,13 @@
 		type EventPointPlan,
 		type SolveInput,
 		type SolveResult
-	} from '$lib/event-point';
-	import { formatInteger, locale, translate, type MessageKey } from '$lib/i18n';
+	} from '#lib/event-point.ts';
+	import {
+		formatInteger,
+		locale,
+		translate,
+		type MessageKey
+	} from '#lib/i18n.ts';
 
 	type FieldName = 'current' | 'target' | 'bonus' | 'maxJumps' | 'maxRuns';
 	type FieldErrors = Partial<Record<FieldName, MessageKey>>;
@@ -229,7 +234,7 @@
 		const nextPath = `/holodori/event-pt/?${parameters.toString()}`;
 		lastCalculationQueryKey = calculationQueryKey(parameters);
 		solveFromParameters(parameters);
-		void goto(nextPath, { noScroll: true });
+		void goto(nextPath, { reset: false });
 	}
 
 	function solveFromParameters(parameters: URLSearchParams): void {
@@ -371,9 +376,9 @@
 		<ul>
 			<li><a href="/?lang={$locale}">{translate($locale, 'site.home')}</a></li>
 			<li>
-				<a href="/holodori/?lang={$locale}"
-					>{translate($locale, 'site.holodori')}</a
-				>
+				<a href="/holodori/?lang={$locale}">
+					{translate($locale, 'site.holodori')}
+				</a>
 			</li>
 			<li>{translate($locale, 'event.heading')}</li>
 		</ul>
@@ -399,23 +404,23 @@
 				<input type="hidden" name="lang" value={$locale} />
 
 				<fieldset class="fieldset gap-0 p-0">
-					<legend class="fieldset-legend mb-4 p-0 text-lg font-bold"
-						>{translate($locale, 'event.formLegend')}</legend
-					>
+					<legend class="fieldset-legend mb-4 p-0 text-lg font-bold">
+						{translate($locale, 'event.formLegend')}
+					</legend>
 
 					{#if showErrorSummary}
 						<div class="alert alert-error mb-5" role="alert" tabindex="-1">
-							<span class="font-semibold"
-								>{translate($locale, 'event.formErrorSummary')}</span
-							>
+							<span class="font-semibold">
+								{translate($locale, 'event.formErrorSummary')}
+							</span>
 						</div>
 					{/if}
 
 					<div class="grid gap-4 sm:grid-cols-2">
 						<div class="fieldset p-0">
-							<label class="label font-semibold" for="current"
-								>{translate($locale, 'event.currentLabel')}</label
-							>
+							<label class="label font-semibold" for="current">
+								{translate($locale, 'event.currentLabel')}
+							</label>
 							<input
 								id="current"
 								class="input numeric w-full"
@@ -440,9 +445,9 @@
 						</div>
 
 						<div class="fieldset p-0">
-							<label class="label font-semibold" for="target"
-								>{translate($locale, 'event.targetLabel')}</label
-							>
+							<label class="label font-semibold" for="target">
+								{translate($locale, 'event.targetLabel')}
+							</label>
 							<input
 								id="target"
 								class="input numeric w-full"
@@ -468,9 +473,9 @@
 					</div>
 
 					<div class="fieldset mt-4 p-0">
-						<label class="label font-semibold" for="bonus"
-							>{translate($locale, 'event.bonusLabel')}</label
-						>
+						<label class="label font-semibold" for="bonus">
+							{translate($locale, 'event.bonusLabel')}
+						</label>
 						<label
 							class="input numeric flex w-full items-center gap-2"
 							for="bonus"
@@ -490,9 +495,9 @@
 								onblur={() => validateAndSet('bonus')}
 								oninput={(event) => handleFieldInput('bonus', event)}
 							/>
-							<span class="text-base-content/60 font-bold"
-								>{translate($locale, 'event.bonusUnit')}</span
-							>
+							<span class="text-base-content/60 font-bold">
+								{translate($locale, 'event.bonusUnit')}
+							</span>
 						</label>
 						<p id="bonus-hint" class="text-base-content/60 mt-1 text-sm">
 							{translate($locale, 'event.bonusHint')}
@@ -510,14 +515,15 @@
 						for="passport"
 					>
 						<span>
-							<strong class="block font-semibold"
-								>{translate($locale, 'event.passportLabel')}</strong
-							>
+							<strong class="block font-semibold">
+								{translate($locale, 'event.passportLabel')}
+							</strong>
 							<span
 								id="passport-hint"
 								class="text-base-content/60 mt-1 block text-sm"
-								>{translate($locale, 'event.passportHint')}</span
 							>
+								{translate($locale, 'event.passportHint')}
+							</span>
 						</span>
 						<input
 							id="passport"
@@ -536,14 +542,14 @@
 					class="collapse-arrow bg-base-200 collapse mt-5"
 					bind:open={searchLimitsOpen}
 				>
-					<summary class="collapse-title font-semibold"
-						>{translate($locale, 'event.limitLegend')}</summary
-					>
+					<summary class="collapse-title font-semibold">
+						{translate($locale, 'event.limitLegend')}
+					</summary>
 					<div class="collapse-content grid gap-4 sm:grid-cols-2">
 						<div class="fieldset p-0">
-							<label class="label font-semibold" for="maxJumps"
-								>{translate($locale, 'event.maxJumpsLabel')}</label
-							>
+							<label class="label font-semibold" for="maxJumps">
+								{translate($locale, 'event.maxJumpsLabel')}
+							</label>
 							<input
 								id="maxJumps"
 								class="input numeric w-full"
@@ -570,9 +576,9 @@
 						</div>
 
 						<div class="fieldset p-0">
-							<label class="label font-semibold" for="maxRuns"
-								>{translate($locale, 'event.maxRunsLabel')}</label
-							>
+							<label class="label font-semibold" for="maxRuns">
+								{translate($locale, 'event.maxRunsLabel')}
+							</label>
 							<input
 								id="maxRuns"
 								class="input numeric w-full"
@@ -600,9 +606,9 @@
 					</div>
 				</details>
 
-				<button class="btn btn-primary mt-5 w-full" type="submit"
-					>{translate($locale, 'event.calculate')}</button
-				>
+				<button class="btn btn-primary mt-5 w-full" type="submit">
+					{translate($locale, 'event.calculate')}
+				</button>
 			</div>
 		</form>
 
@@ -701,13 +707,13 @@
 											index: index + 1
 										})}
 									</h3>
-									<span class="badge badge-outline"
-										>{translate(
+									<span class="badge badge-outline">
+										{translate(
 											$locale,
 											plan.plays === 1 ? 'event.playsOne' : 'event.plays',
 											{ count: plan.plays }
-										)}</span
-									>
+										)}
+									</span>
 								</header>
 
 								<div class="overflow-x-auto">
@@ -746,20 +752,20 @@
 								<footer
 									class="border-base-300 numeric flex flex-wrap justify-between gap-2 border-t pt-3 text-sm"
 								>
-									<span
-										>{translate(
+									<span>
+										{translate(
 											$locale,
 											plan.totalJumps === 1
 												? 'event.totalJumpsOne'
 												: 'event.totalJumps',
 											{ count: plan.totalJumps }
-										)}</span
-									>
-									<span
-										>{translate($locale, 'event.planReward', {
+										)}
+									</span>
+									<span>
+										{translate($locale, 'event.planReward', {
 											points: formatInteger($locale, plan.reward)
-										})}</span
-									>
+										})}
+									</span>
 								</footer>
 							</div>
 						</article>
@@ -770,9 +776,9 @@
 	</div>
 
 	<details class="collapse-arrow bg-base-100 collapse mt-6 shadow-sm">
-		<summary class="collapse-title text-lg font-semibold"
-			>{translate($locale, 'event.formulaHeading')}</summary
-		>
+		<summary class="collapse-title text-lg font-semibold">
+			{translate($locale, 'event.formulaHeading')}
+		</summary>
 		<div class="collapse-content">
 			<p class="text-base-content/70">
 				{translate($locale, 'event.formulaIntro')}
@@ -780,12 +786,14 @@
 			<div class="mt-4 grid gap-2">
 				<code
 					class="bg-base-200 numeric block overflow-x-auto rounded p-3 text-sm"
-					>{translate($locale, 'event.formulaBase')}</code
 				>
+					{translate($locale, 'event.formulaBase')}
+				</code>
 				<code
 					class="bg-base-200 numeric block overflow-x-auto rounded p-3 text-sm"
-					>{translate($locale, 'event.formulaReward')}</code
 				>
+					{translate($locale, 'event.formulaReward')}
+				</code>
 			</div>
 			<div class="text-base-content/70 mt-4 grid gap-2 text-sm">
 				<p>{translate($locale, 'event.formulaBoundary')}</p>

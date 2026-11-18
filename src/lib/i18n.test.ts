@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { defaultLocale, resolveLocale, translate } from './i18n';
+import { defaultLocale, resolveLocale, translate } from '#lib/i18n.ts';
 
 describe('locale resolution', () => {
 	it('uses English when no supported preference is available', () => {

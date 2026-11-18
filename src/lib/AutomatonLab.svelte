@@ -3,14 +3,14 @@
 	import {
 		AutomatonLabController,
 		type AutomatonRunState
-	} from '$lib/automaton/controller';
+	} from '#lib/automaton/controller.ts';
 	import {
 		AUTOMATON_RULES,
 		findAutomatonRule,
 		parseAutomatonRule,
 		type AutomatonRule
-	} from '$lib/automaton/rules';
-	import { locale, translate } from '$lib/i18n';
+	} from '#lib/automaton/rules.ts';
+	import { locale, translate } from '#lib/i18n.ts';
 
 	type Props = {
 		initialRuleId?: string;
@@ -122,9 +122,9 @@
 		<div class="card-body gap-4 p-5 sm:p-6">
 			<form onsubmit={applyRule}>
 				<fieldset class="fieldset">
-					<legend id="automaton-rule-label" class="fieldset-legend"
-						>{translate($locale, 'automaton.rule')}</legend
-					>
+					<legend id="automaton-rule-label" class="fieldset-legend">
+						{translate($locale, 'automaton.rule')}
+					</legend>
 					<p id="automaton-rule-help" class="label">
 						{translate($locale, 'automaton.ruleHelp')}
 					</p>

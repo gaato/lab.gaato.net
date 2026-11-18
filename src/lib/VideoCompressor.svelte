@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import VideoWorker from '$lib/media/video.worker?worker';
-	import { locale, translate, type MessageKey } from '$lib/i18n';
-	import { planEncode, type EncodePlan } from '$lib/media/plan';
-	import { trimEndUs as normalizeTrimEndUs } from '$lib/media/timing';
+	import VideoWorker from '#lib/media/video.worker.ts?worker';
+	import { locale, translate, type MessageKey } from '#lib/i18n.ts';
+	import { planEncode, type EncodePlan } from '#lib/media/plan.ts';
+	import { trimEndUs as normalizeTrimEndUs } from '#lib/media/timing.ts';
 	import type {
 		VideoSourceInfo,
 		VideoWorkerErrorCode,
 		VideoWorkerPhase,
 		VideoWorkerResponse
-	} from '$lib/media/video-worker';
+	} from '#lib/media/video-worker.ts';
 
 	let sourceFile = $state.raw<File | null>(null);
 	let sourceInfo = $state.raw<VideoSourceInfo | null>(null);
@@ -431,9 +431,9 @@
 
 				<div class="form-control">
 					<label class="label" for="discord-video-target">
-						<span class="label-text font-medium"
-							>{translate($locale, 'discordVideo.target')}</span
-						>
+						<span class="label-text font-medium">
+							{translate($locale, 'discordVideo.target')}
+						</span>
 					</label>
 					<select
 						id="discord-video-target"
@@ -441,27 +441,27 @@
 						class="select select-bordered w-full"
 						bind:value={targetPreset}
 					>
-						<option value="20"
-							>{translate($locale, 'discordVideo.target20')}</option
-						>
-						<option value="50"
-							>{translate($locale, 'discordVideo.target50')}</option
-						>
-						<option value="100"
-							>{translate($locale, 'discordVideo.target100')}</option
-						>
-						<option value="custom"
-							>{translate($locale, 'discordVideo.targetCustom')}</option
-						>
+						<option value="20">
+							{translate($locale, 'discordVideo.target20')}
+						</option>
+						<option value="50">
+							{translate($locale, 'discordVideo.target50')}
+						</option>
+						<option value="100">
+							{translate($locale, 'discordVideo.target100')}
+						</option>
+						<option value="custom">
+							{translate($locale, 'discordVideo.targetCustom')}
+						</option>
 					</select>
 				</div>
 
 				{#if targetPreset === 'custom'}
 					<div class="form-control">
 						<label class="label" for="discord-video-custom-target">
-							<span class="label-text font-medium"
-								>{translate($locale, 'discordVideo.customTarget')}</span
-							>
+							<span class="label-text font-medium">
+								{translate($locale, 'discordVideo.customTarget')}
+							</span>
 						</label>
 						<p
 							id="discord-video-custom-hint"
@@ -483,14 +483,14 @@
 				{/if}
 
 				<fieldset class="space-y-3">
-					<legend class="font-medium"
-						>{translate($locale, 'discordVideo.trim')}</legend
-					>
+					<legend class="font-medium">
+						{translate($locale, 'discordVideo.trim')}
+					</legend>
 					<div class="grid gap-3 sm:grid-cols-2">
 						<div class="form-control">
-							<label class="label" for="discord-video-trim-start"
-								>{translate($locale, 'discordVideo.trimStart')}</label
-							>
+							<label class="label" for="discord-video-trim-start">
+								{translate($locale, 'discordVideo.trimStart')}
+							</label>
 							<input
 								id="discord-video-trim-start"
 								class="input input-bordered w-full"
@@ -506,9 +506,9 @@
 							/>
 						</div>
 						<div class="form-control">
-							<label class="label" for="discord-video-trim-end"
-								>{translate($locale, 'discordVideo.trimEnd')}</label
-							>
+							<label class="label" for="discord-video-trim-end">
+								{translate($locale, 'discordVideo.trimEnd')}
+							</label>
 							<input
 								id="discord-video-trim-end"
 								class="input input-bordered w-full"
@@ -544,9 +544,9 @@
 							name="keepAudio"
 							bind:checked={keepAudio}
 						/>
-						<span class="label-text"
-							>{translate($locale, 'discordVideo.keepAudio')}</span
-						>
+						<span class="label-text">
+							{translate($locale, 'discordVideo.keepAudio')}
+						</span>
 					</label>
 				{/if}
 
@@ -611,9 +611,9 @@
 						{translate($locale, 'discordVideo.compress')}
 					</button>
 					{#if compressing}
-						<button class="btn btn-ghost" type="button" onclick={cancel}
-							>{translate($locale, 'discordVideo.cancel')}</button
-						>
+						<button class="btn btn-ghost" type="button" onclick={cancel}>
+							{translate($locale, 'discordVideo.cancel')}
+						</button>
 					{/if}
 				</div>
 

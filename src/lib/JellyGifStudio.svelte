@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onDestroy, onMount, tick } from 'svelte';
-	import JellyGifWorker from '$lib/wobble.worker?worker';
-	import { locale, translate, type MessageKey } from '$lib/i18n';
-	import RangeField from '$lib/RangeField.svelte';
-	import { compositeInPlace, type Background } from '$lib/wobble/composite';
+	import JellyGifWorker from '#lib/wobble.worker.ts?worker';
+	import { locale, translate, type MessageKey } from '#lib/i18n.ts';
+	import RangeField from '#lib/RangeField.svelte';
+	import { compositeInPlace, type Background } from '#lib/wobble/composite.ts';
 	import {
 		DEFAULT_SETTINGS,
 		MAX_SPEED_HZ,
@@ -17,9 +17,9 @@
 		type WobbleDirection,
 		type WobbleMode,
 		type WobbleSettings
-	} from '$lib/wobble/settings';
-	import { outputSize, renderFrame, type RgbaImage } from '$lib/wobble/warp';
-	import type { JellyGifWorkerResponse } from '$lib/wobble-worker';
+	} from '#lib/wobble/settings.ts';
+	import { outputSize, renderFrame, type RgbaImage } from '#lib/wobble/warp.ts';
+	import type { JellyGifWorkerResponse } from '#lib/wobble-worker.ts';
 
 	// Per-pixel rendering hot loops must read plain objects, not deep proxies.
 	let source = $state.raw<RgbaImage | null>(null);
@@ -1007,9 +1007,9 @@
 							{translate($locale, 'jellyGif.controls')}
 						</legend>
 
-						<label for="jelly-gif-mode"
-							>{translate($locale, 'jellyGif.mode')}</label
-						>
+						<label for="jelly-gif-mode">
+							{translate($locale, 'jellyGif.mode')}
+						</label>
 						<select
 							id="jelly-gif-mode"
 							class="select w-full"
@@ -1017,15 +1017,15 @@
 							onchange={handleMode}
 							disabled={encoding || recording}
 						>
-							<option value="wave"
-								>{translate($locale, 'jellyGif.modeWave')}</option
-							>
-							<option value="shake"
-								>{translate($locale, 'jellyGif.modeShake')}</option
-							>
-							<option value="squish"
-								>{translate($locale, 'jellyGif.modeSquish')}</option
-							>
+							<option value="wave">
+								{translate($locale, 'jellyGif.modeWave')}
+							</option>
+							<option value="shake">
+								{translate($locale, 'jellyGif.modeShake')}
+							</option>
+							<option value="squish">
+								{translate($locale, 'jellyGif.modeSquish')}
+							</option>
 						</select>
 
 						<div class="mt-2 grid gap-4">
@@ -1082,9 +1082,9 @@
 							/>
 						</div>
 
-						<label class="mt-2" for="jelly-gif-direction"
-							>{translate($locale, 'jellyGif.direction')}</label
-						>
+						<label class="mt-2" for="jelly-gif-direction">
+							{translate($locale, 'jellyGif.direction')}
+						</label>
 						<select
 							id="jelly-gif-direction"
 							class="select w-full"
@@ -1092,20 +1092,20 @@
 							onchange={handleDirection}
 							disabled={encoding || recording}
 						>
-							<option value="horizontal"
-								>{translate($locale, 'jellyGif.directionHorizontal')}</option
-							>
-							<option value="vertical"
-								>{translate($locale, 'jellyGif.directionVertical')}</option
-							>
-							<option value="both"
-								>{translate($locale, 'jellyGif.directionBoth')}</option
-							>
+							<option value="horizontal">
+								{translate($locale, 'jellyGif.directionHorizontal')}
+							</option>
+							<option value="vertical">
+								{translate($locale, 'jellyGif.directionVertical')}
+							</option>
+							<option value="both">
+								{translate($locale, 'jellyGif.directionBoth')}
+							</option>
 						</select>
 
-						<label class="mt-2" for="jelly-gif-background"
-							>{translate($locale, 'jellyGif.background')}</label
-						>
+						<label class="mt-2" for="jelly-gif-background">
+							{translate($locale, 'jellyGif.background')}
+						</label>
 						<select
 							id="jelly-gif-background"
 							class="select w-full"
@@ -1113,21 +1113,21 @@
 							onchange={handleBackgroundMode}
 							disabled={encoding || recording}
 						>
-							<option value="none"
-								>{translate($locale, 'jellyGif.backgroundNone')}</option
-							>
-							<option value="color"
-								>{translate($locale, 'jellyGif.backgroundColor')}</option
-							>
-							<option value="image"
-								>{translate($locale, 'jellyGif.backgroundImage')}</option
-							>
+							<option value="none">
+								{translate($locale, 'jellyGif.backgroundNone')}
+							</option>
+							<option value="color">
+								{translate($locale, 'jellyGif.backgroundColor')}
+							</option>
+							<option value="image">
+								{translate($locale, 'jellyGif.backgroundImage')}
+							</option>
 						</select>
 
 						{#if backgroundMode === 'color'}
-							<label class="mt-2" for="jelly-gif-video-background"
-								>{translate($locale, 'jellyGif.videoBackground')}</label
-							>
+							<label class="mt-2" for="jelly-gif-video-background">
+								{translate($locale, 'jellyGif.videoBackground')}
+							</label>
 							<input
 								id="jelly-gif-video-background"
 								type="color"
@@ -1137,9 +1137,9 @@
 								oninput={handleBackgroundColor}
 							/>
 						{:else if backgroundMode === 'image'}
-							<label class="mt-2" for="jelly-gif-background-file"
-								>{translate($locale, 'jellyGif.backgroundImage')}</label
-							>
+							<label class="mt-2" for="jelly-gif-background-file">
+								{translate($locale, 'jellyGif.backgroundImage')}
+							</label>
 							<input
 								id="jelly-gif-background-file"
 								type="file"
@@ -1185,9 +1185,9 @@
 							{translate($locale, 'jellyGif.generate')}
 						</button>
 						{#if encoding}
-							<button type="button" class="btn" onclick={cancelGeneration}
-								>{translate($locale, 'jellyGif.cancel')}</button
-							>
+							<button type="button" class="btn" onclick={cancelGeneration}>
+								{translate($locale, 'jellyGif.cancel')}
+							</button>
 						{/if}
 					</div>
 					{#if encoding && progress}
@@ -1274,8 +1274,9 @@
 								download={downloadName}
 								data-testid="jelly-gif-download"
 								bind:this={downloadLink}
-								>{translate($locale, 'jellyGif.download')}</a
 							>
+								{translate($locale, 'jellyGif.download')}
+							</a>
 							{#if canShareFiles}
 								<button
 									type="button"
@@ -1324,8 +1325,9 @@
 									type="button"
 									class="btn"
 									onclick={() => cancelRecording()}
-									>{translate($locale, 'jellyGif.cancel')}</button
 								>
+									{translate($locale, 'jellyGif.cancel')}
+								</button>
 							{/if}
 						</div>
 						{#if videoUrl && size}
@@ -1351,8 +1353,9 @@
 									class="btn"
 									href={videoUrl}
 									download={videoDownloadName}
-									>{translate($locale, 'jellyGif.videoDownload')}</a
 								>
+									{translate($locale, 'jellyGif.videoDownload')}
+								</a>
 								{#if canShareFiles}
 									<button
 										type="button"

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { isLocale, locale, translate } from '$lib/i18n';
+	import { isLocale, locale, translate } from '#lib/i18n.ts';
 
 	const isNotFound = $derived(page.status === 404);
 	const queryLocale = $derived(page.url.searchParams.get('lang'));
@@ -39,9 +39,9 @@
 					isNotFound ? 'error.notFoundBody' : 'error.genericBody'
 				)}
 			</p>
-			<a class="btn btn-primary mt-6" href={`/?lang=${activeLocale}`}
-				>{translate(activeLocale, 'error.backHome')}</a
-			>
+			<a class="btn btn-primary mt-6" href={`/?lang=${activeLocale}`}>
+				{translate(activeLocale, 'error.backHome')}
+			</a>
 		</div>
 	</div>
 </section>

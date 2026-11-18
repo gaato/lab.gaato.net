@@ -1,7 +1,7 @@
 <script lang="ts">
-	import AutomatonLab from '$lib/AutomatonLab.svelte';
-	import ToolShare from '$lib/ToolShare.svelte';
-	import { locale, translate } from '$lib/i18n';
+	import AutomatonLab from '#lib/AutomatonLab.svelte';
+	import ToolShare from '#lib/ToolShare.svelte';
+	import { locale, translate } from '#lib/i18n.ts';
 </script>
 
 <svelte:head>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { afterNavigate, goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 	import {
 		defaultLocale,
@@ -9,7 +10,7 @@
 		supportedLocales,
 		translate,
 		type Locale
-	} from '$lib/i18n';
+	} from '#lib/i18n.ts';
 	import './layout.css';
 
 	let { children } = $props();
@@ -125,10 +126,13 @@
 		url.searchParams.set('lang', nextLocale);
 		persistLocale(nextLocale);
 		applyLocale(nextLocale);
+		if (page.route.id === null) {
+			window.location.replace(url.href);
+			return;
+		}
 		await goto(`${url.pathname}${url.search}${url.hash}`, {
-			replaceState: true,
-			noScroll: true,
-			keepFocus: true
+			replace: true,
+			reset: false
 		});
 	}
 </script>
@@ -194,9 +198,9 @@
 					{/if}
 				</button>
 
-				<label class="sr-only" for="site-language"
-					>{translate($locale, 'site.language')}</label
-				>
+				<label class="sr-only" for="site-language">
+					{translate($locale, 'site.language')}
+				</label>
 				<select
 					id="site-language"
 					class="select select-bordered min-w-32"
@@ -204,9 +208,9 @@
 					onchange={changeLanguage}
 				>
 					{#each supportedLocales as option}
-						<option value={option}
-							>{translate($locale, `language.${option}`)}</option
-						>
+						<option value={option}>
+							{translate($locale, `language.${option}`)}
+						</option>
 					{/each}
 				</select>
 			</div>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { translate, type Locale, type MessageKey } from '$lib/i18n';
+	import { translate, type Locale, type MessageKey } from '#lib/i18n.ts';
 
 	type Props = {
 		activeLocale: Locale;

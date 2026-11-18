@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onDestroy, onMount, tick } from 'svelte';
-	import AnalysisWorker from '$lib/high-low.worker?worker';
-	import ToolShare from '$lib/ToolShare.svelte';
+	import AnalysisWorker from '#lib/high-low.worker.ts?worker';
+	import ToolShare from '#lib/ToolShare.svelte';
 	import {
 		HAND_RANKS,
 		RANKS,
@@ -13,7 +13,7 @@
 		type HoldStrategy,
 		type Rank,
 		type Suit
-	} from '$lib/high-low';
+	} from '#lib/high-low.ts';
 	import {
 		DAILY_HIGH_LOW_LEGACY_STORAGE_KEY,
 		DAILY_HIGH_LOW_LIMIT,
@@ -30,18 +30,18 @@
 		type DailyHighLowProgressV2,
 		type DailyRouteRecommendation,
 		type PayingHandRank
-	} from '$lib/high-low-daily';
+	} from '#lib/high-low-daily.ts';
 	import type {
 		HighLowWorkerRequest,
 		HighLowWorkerResponse
-	} from '$lib/high-low-worker';
+	} from '#lib/high-low-worker.ts';
 	import {
 		formatInteger,
 		locale,
 		translate,
 		type Locale,
 		type MessageKey
-	} from '$lib/i18n';
+	} from '#lib/i18n.ts';
 
 	type CardSlot = Card | null;
 
@@ -590,9 +590,9 @@
 		<ul>
 			<li><a href="/?lang={$locale}">{translate($locale, 'site.home')}</a></li>
 			<li>
-				<a href="/holodori/?lang={$locale}"
-					>{translate($locale, 'site.holodori')}</a
-				>
+				<a href="/holodori/?lang={$locale}">
+					{translate($locale, 'site.holodori')}
+				</a>
 			</li>
 			<li>{translate($locale, 'highLow.heading')}</li>
 		</ul>
@@ -684,8 +684,10 @@
 									class={`btn min-h-12 min-w-0 px-1 ${!selectedCardIsJoker && selectedRank === rank ? 'btn-primary' : 'btn-outline'}`}
 									type="button"
 									aria-pressed={!selectedCardIsJoker && selectedRank === rank}
-									onclick={() => chooseRank(rank)}>{rank}</button
+									onclick={() => chooseRank(rank)}
 								>
+									{rank}
+								</button>
 							{/each}
 							<button
 								class={`btn col-span-2 min-h-12 min-w-0 px-1 text-xs ${selectedCardIsJoker ? 'btn-primary' : 'btn-outline'}`}
@@ -822,8 +824,9 @@
 											>
 												<strong
 													class={`text-lg leading-none ${card?.kind === 'standard' && (card.suit === 'hearts' || card.suit === 'diamonds') ? 'text-error' : ''}`}
-													>{card ? cardText($locale, card) : ''}</strong
 												>
+													{card ? cardText($locale, card) : ''}
+												</strong>
 												<span class="text-[0.6875rem] font-semibold sm:text-xs">
 													{strategyKeepsCard(strategy, index)
 														? translate($locale, 'highLow.keep')
@@ -1021,13 +1024,9 @@
 				role="status"
 				aria-live="polite"
 			>
-				<span
-					>{dailyRecommendationText(
-						$locale,
-						dailyRecommendation,
-						dailySubtotal
-					)}</span
-				>
+				<span>
+					{dailyRecommendationText($locale, dailyRecommendation, dailySubtotal)}
+				</span>
 			</div>
 
 			<div
